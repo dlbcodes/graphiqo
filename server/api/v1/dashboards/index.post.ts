@@ -28,15 +28,13 @@ export default defineEventHandler(async (event) => {
 				dashboardId: dashboard.id,
 				name: "First Chart",
 				type: "bar",
-				// Provide some starter data so the user isn't confused by a blank screen
 				rawData: [
-					{ label: "Example 1", value: 10 },
-					{ label: "Example 2", value: 25 },
-					{ label: "Example 3", value: 15 }
+					// Change "value" to "val1" to match your DataSheet component
+					{ label: "Example 1", val1: 10 },
+					{ label: "Example 2", val1: 25 },
+					{ label: "Example 3", val1: 15 }
 				],
-				config: {
-					theme: "default"
-				}
+				config: { theme: "default" }
 			}
 		});
 

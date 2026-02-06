@@ -21,59 +21,40 @@ const activeChart = computed(() => {
 
 // 3. Dynamic Multi-Series Chart Logic
 const chartOptions = computed(() => {
-    const data = activeChart.value?.rawData;
-    if (!data || !Array.isArray(data) || data.length === 0) {
-        return {};
-    }
+    let data = activeChart.value?.rawData;
+    if (!data || !Array.isArray(data)) return {};
 
-    // Identify all value columns (val1, val2, ..., val15)
-    const seriesKeys = Object.keys(data[0]).filter((key) =>
+    // 1. FILTER: Only use rows that have a label and at least one value
+    const filteredData = data.filter((row) => {
+        const hasLabel = row.label && row.label.toString().trim() !== "";
+        // Check if any val1...val15 has a number
+        const hasValue = Object.keys(row).some(
+            (k) => k.startsWith("val") && row[k] !== null && row[k] !== "",
+        );
+        return hasLabel && hasValue;
+    });
+
+    if (filteredData.length === 0) return {};
+
+    const seriesKeys = Object.keys(filteredData[0]).filter((key) =>
         key.startsWith("val"),
     );
+    const xAxisData = filteredData.map((row) => row.label);
 
-    // X-Axis Labels (from the 'label' column)
-    const xAxisData = data.map((row) => row.label || "Empty");
-
-    // Create a series for each of the 15 columns
     const series = seriesKeys.map((key) => ({
-        name: key.replace("val", "Column "), // Friendly name: "Column 1"
+        name: key.replace("val", "Column "),
         type: activeChart.value?.type || "bar",
-        data: data.map((row) => row[key] || 0),
+        // Map the filtered data
+        data: filteredData.map((row) => Number(row[key]) || 0),
         smooth: true,
-        emphasis: { focus: "series" }, // Highlights line on hover
-        areaStyle: activeChart.value?.type === "line" ? { opacity: 0.1 } : null,
+        emphasis: { focus: "series" },
     }));
 
     return {
-        tooltip: {
-            trigger: "axis",
-            axisPointer: { type: "shadow" },
-        },
-        legend: {
-            type: "scroll", // Adds "next/prev" arrows if 15 legends don't fit
-            bottom: 10,
-            data: seriesKeys.map((key) => key.replace("val", "Column ")),
-        },
-        grid: {
-            top: "10%",
-            left: "3%",
-            right: "4%",
-            bottom: "15%",
-            containLabel: true,
-        },
-        xAxis: {
-            type: "category",
-            data: xAxisData,
-            axisLabel: { interval: 0, rotate: 30 }, // Rotate labels so 50 items fit
-        },
-        yAxis: {
-            type: "value",
-        },
-        // Enable DataZoom so users can navigate 50 rows easily
-        dataZoom: [
-            { type: "inside", start: 0, end: 50 },
-            { type: "slider", bottom: 45 },
-        ],
+        tooltip: { trigger: "axis" },
+        legend: { type: "scroll", bottom: 0 },
+        xAxis: { type: "category", data: xAxisData },
+        yAxis: { type: "value" },
         series: series,
     };
 });
@@ -83,14 +64,14 @@ let saveTimeout: any;
 watch(
     () => activeChart.value?.rawData,
     (newVal) => {
-        if (!newVal || !activeChart.value) return;
+        if (!newVal) return;
 
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(() => {
             store.updateChartData(activeChart.value!.id, { rawData: newVal });
-        }, 1200); // Slightly longer delay for larger payload
+        }, 1000); // 1 second is enough
     },
-    { deep: true },
+    { deep: true, flush: "post" }, // 'post' ensures we get the latest data after the UI render
 );
 
 const deleteChart = async (id: string) => {
@@ -239,8 +220,10 @@ const deleteChart = async (id: string) => {
                         </h3>
                     </div>
 
-                    <div class="flex-1 min-h-0 relative">
-                        <DataSheet v-model="activeChart.rawData" />
+                    <div class="flex-1 min-h-0 flex flex-col relative">
+                        <div class="absolute inset-0">
+                            <DataSheet v-model="activeChart.rawData" />
+                        </div>
                     </div>
                 </div>
 
