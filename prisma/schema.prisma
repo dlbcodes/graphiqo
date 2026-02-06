@@ -1,0 +1,222 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Profile {
+  id     String  @id @db.Uuid
+  name   String
+  avatar String?
+
+  // Stripe fields
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+  subscriptionTier       String    @default("trial") // "trial", "free", "pro", "enterprise"
+  trialEndsAt            DateTime? // Set to 14 days from signup
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  pages Page[]
+
+  @@map("profiles")
+}
+
+model Page {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  title  String
+  bio    String? @db.Text
+  avatar String?
+
+  theme        String @default("dark")
+  primaryColor String @default("#4f39f6")
+
+  // SEO
+  metaTitle       String?
+  metaDescription String? @db.Text
+
+  // Analytics & Tracking
+  googleAnalyticsId String? // e.g., "G-XXXXXXXXXX" or "UA-XXXXXXXXX-X"
+  facebookPixelId   String? // e.g., "1234567890"
+
+  // Content Settings
+  isNsfw Boolean @default(false) // Not Safe For Work flag
+
+  // Publishing
+  isPublished Boolean @default(true)
+  viewCount   Int     @default(0)
+
+  // Relations
+  videoCards  VideoCard[]
+  socialLinks SocialLink[]
+  pageLinks   PageLink[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([isNsfw])
+  @@map("pages")
+}
+
+model VideoCard {
+  id     String @id @default(cuid())
+  pageId String
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  // Media Files (store only filenames, not full URLs)
+  videoFile     String? // e.g., "1234567890-abc123.mp4"
+  imageFile     String? // e.g., "1234567890-def456.jpg"
+  thumbnailFile String? // e.g., "1234567890-ghi789.png"
+
+  // Content
+  title       String?
+  description String? @db.Text
+
+  // Links & CTAs
+  ctaLinks CtaLink[]
+
+  // Display Order
+  order Int @default(0)
+
+  // Status
+  isActive Boolean @default(true)
+  isNsfw   Boolean @default(false)
+
+  // Analytics
+  viewCount  Int @default(0)
+  clickCount Int @default(0)
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageId])
+  @@index([order])
+  @@index([isActive])
+  @@map("video_cards")
+}
+
+model PageLink {
+  id     String @id @default(cuid())
+  pageId String
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  // Link Details
+  title String // Link text
+  url   String  @db.Text // Destination URL
+  icon  String? // Icon/emoji
+
+  // Display
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+  isNsfw   Boolean @default(false)
+
+  // Scheduling
+  scheduledStartAt DateTime? // When link becomes visible
+  scheduledEndAt   DateTime? // When link becomes hidden (optional)
+
+  // Thumbnail
+  thumbnailType ThumbnailType @default(NONE) // none, favicon, custom
+  thumbnail  String?       @db.Text // Custom thumbnail URL
+
+  // Analytics
+  clickCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageId])
+  @@index([order])
+  @@index([scheduledStartAt])
+  @@index([scheduledEndAt])
+  @@map("page_links")
+}
+
+enum ThumbnailType {
+  NONE
+  FAVICON
+  CUSTOM
+}
+
+model CtaLink {
+  id          String    @id @default(cuid())
+  videoCardId String
+  videoCard   VideoCard @relation(fields: [videoCardId], references: [id], onDelete: Cascade)
+
+  // Link Details
+  title String // Button text
+  url   String  @db.Text // Destination URL
+  icon  String? // Icon/emoji
+
+  // Display
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+  isNsfw   Boolean @default(false)
+
+  // Analytics
+  clickCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([videoCardId])
+  @@index([order])
+  @@map("cta_links")
+}
+
+model SocialLink {
+  id     String @id @default(cuid())
+  pageId String
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  // Social Platform
+  platform String // "twitter", "instagram", "tiktok", "youtube", "github", "linkedin", etc.
+  url      String @db.Text
+
+  // Display
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  // Analytics
+  clickCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageId])
+  @@index([order])
+  @@map("social_links")
+}
+
+
+model Waitlist {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  email     String   @unique
+  status    String   @default("pending") // "pending", "invited", "converted"
+  notified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("waitlist")
+}
