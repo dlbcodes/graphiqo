@@ -21,58 +21,83 @@ const activeChart = computed(() => {
 
 // 3. Dynamic Multi-Series Chart Logic
 const chartOptions = computed(() => {
-    let data = activeChart.value?.rawData;
+    const data = activeChart.value?.rawData;
+    const config = activeChart.value?.config || {};
     if (!data || !Array.isArray(data)) return {};
 
-    // 1. FILTER: Only use rows that have a label and at least one value
-    const filteredData = data.filter((row) => {
-        const hasLabel = row.label && row.label.toString().trim() !== "";
-        // Check if any val1...val15 has a number
-        const hasValue = Object.keys(row).some(
-            (k) => k.startsWith("val") && row[k] !== null && row[k] !== "",
-        );
-        return hasLabel && hasValue;
-    });
-
-    if (filteredData.length === 0) return {};
-
-    const seriesKeys = Object.keys(filteredData[0]).filter((key) =>
-        key.startsWith("val"),
+    // Filter out rows without labels
+    const filteredData = data.filter(
+        (row) => row.label && row.label.trim() !== "",
     );
-    const xAxisData = filteredData.map((row) => row.label);
+    const seriesKeys = Object.keys(filteredData[0] || {}).filter((k) =>
+        k.startsWith("val"),
+    );
+    const labels = filteredData.map((r) => r.label);
 
     const series = seriesKeys.map((key) => ({
         name: key.replace("val", "Column "),
         type: activeChart.value?.type || "bar",
-        // Map the filtered data
         data: filteredData.map((row) => Number(row[key]) || 0),
-        smooth: true,
+
+        // Customizations
+        stack: config.stack ? "total" : null,
+        smooth: config.smooth ?? true,
+        lineStyle: { width: config.lineWidth || 2 },
+        symbolSize: config.symbolSize ?? 4,
+        areaStyle: config.area ? { opacity: 0.3 } : null,
+
         emphasis: { focus: "series" },
     }));
 
     return {
-        tooltip: { trigger: "axis" },
-        legend: { type: "scroll", bottom: 0 },
-        xAxis: { type: "category", data: xAxisData },
-        yAxis: { type: "value" },
+        // Apply the Palette
+        color: config.palette || palettes.vibrant,
+
+        tooltip: {
+            trigger: "axis",
+            formatter: (params) => {
+                let res = `<div class="font-bold mb-1">${params[0].name}</div>`;
+                params.forEach((p) => {
+                    const val = p.value.toFixed(config.precision || 0);
+                    res += `<div class="flex justify-between gap-4 text-xs">
+                                <span>${p.marker} ${p.seriesName}</span>
+                                <span class="font-bold">${val}${config.suffix || ""}</span>
+                            </div>`;
+                });
+                return res;
+            },
+        },
+
+        legend: { type: "scroll", bottom: 10 },
+
+        // Horizontal Switch
+        xAxis: {
+            type: config.horizontal ? "value" : "category",
+            data: config.horizontal ? null : labels,
+        },
+        yAxis: {
+            type: config.horizontal ? "category" : "value",
+            data: config.horizontal ? labels : null,
+        },
+
         series: series,
     };
 });
 
 // 4. Auto-Save Logic
-let saveTimeout: any;
-watch(
-    () => activeChart.value?.rawData,
-    (newVal) => {
-        if (!newVal) return;
+// let saveTimeout: any;
+// watch(
+//     () => activeChart.value?.rawData,
+//     (newVal) => {
+//         if (!newVal) return;
 
-        clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(() => {
-            store.updateChartData(activeChart.value!.id, { rawData: newVal });
-        }, 1000); // 1 second is enough
-    },
-    { deep: true, flush: "post" }, // 'post' ensures we get the latest data after the UI render
-);
+//         clearTimeout(saveTimeout);
+//         saveTimeout = setTimeout(() => {
+//             store.updateChartData(activeChart.value!.id, { rawData: newVal });
+//         }, 1000); // 1 second is enough
+//     },
+//     { deep: true, flush: "post" }, // 'post' ensures we get the latest data after the UI render
+// );
 
 const deleteChart = async (id: string) => {
     if (confirm("Are you sure you want to delete this chart?")) {
@@ -227,10 +252,21 @@ const deleteChart = async (id: string) => {
                     </div>
                 </div>
 
-                <div
-                    class="col-span-12 lg:col-span-7 bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col overflow-hidden"
-                >
-                    <div class="flex-1 p-4">
+                <div class="col-span-12 lg:col-span-7 flex flex-col gap-4">
+                    <ChartSettings
+                        v-if="activeChart"
+                        v-model="activeChart.config"
+                        @update:modelValue="
+                            (val) =>
+                                store.updateChartData(activeChart.id, {
+                                    config: val,
+                                })
+                        "
+                    />
+
+                    <div
+                        class="flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden p-4"
+                    >
                         <ChartPreview :options="chartOptions" />
                     </div>
                 </div>

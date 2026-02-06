@@ -57,14 +57,24 @@ const dataColumns = Array.from({ length: columnCount }, (_, i) => ({
 
 <style scoped>
 .sheet-container {
-    height: 100%;
     width: 100%;
-    display: flex;
-    flex-direction: column;
+    height: 100%;
+    min-height: 0;
 }
 
-/* This targets the internal library height */
 :deep(.ve-container) {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+:deep(.ve-table-container) {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+}
+
+:deep(.ve-content-container) {
     height: 100% !important;
 }
 </style>
