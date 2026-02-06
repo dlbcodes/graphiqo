@@ -5,7 +5,6 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue"]);
 
-// Professional Palettes
 const palettes = {
     vibrant: [
         "#4f39f6",
@@ -28,6 +27,11 @@ const palettes = {
     monochrome: ["#111827", "#374151", "#6b7280", "#9ca3af", "#d1d5db"],
 };
 
+const updateColumnType = (colKey: string, type: string) => {
+    const currentTypes = props.modelValue.columnTypes || {};
+    updateConfig('columnTypes', { ...currentTypes, [colKey]: type });
+};
+
 const updateConfig = (key: string, value: any) => {
     emit("update:modelValue", { ...props.modelValue, [key]: value });
 };
@@ -35,7 +39,7 @@ const updateConfig = (key: string, value: any) => {
 
 <template>
     <div
-        class="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm"
+        class="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm max-h-[70vh] overflow-y-auto custom-scrollbar"
     >
         <section>
             <h4
@@ -74,110 +78,215 @@ const updateConfig = (key: string, value: any) => {
 
         <hr class="border-gray-50" />
 
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-4">
+        <section class="bg-rose-50 p-4 rounded-2xl border border-rose-100">
+            <h4
+                class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-3"
+            >
+                Goal / Target Line
+            </h4>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[9px] text-rose-600 font-bold mb-1 block"
+                        >Value</label
+                    >
+                    <input
+                        type="number"
+                        :value="modelValue.goalValue"
+                        @input="
+                            (e) =>
+                                updateConfig(
+                                    'goalValue',
+                                    Number(
+                                        (e.target as HTMLInputElement).value,
+                                    ),
+                                )
+                        "
+                        class="w-full text-xs p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-rose-500"
+                        placeholder="e.g. 100"
+                    />
+                </div>
+                <div>
+                    <label class="text-[9px] text-rose-600 font-bold mb-1 block"
+                        >Label</label
+                    >
+                    <input
+                        :value="modelValue.goalLabel"
+                        @input="
+                            (e) =>
+                                updateConfig(
+                                    'goalLabel',
+                                    (e.target as HTMLInputElement).value,
+                                )
+                        "
+                        class="w-full text-xs p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-rose-500"
+                        placeholder="Target"
+                    />
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-2 gap-6">
+            <div class="space-y-3">
                 <h4
                     class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
                 >
-                    Chart Display
+                    Typography
                 </h4>
-                <div class="grid grid-cols-1 gap-2">
-                    <label
-                        class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                <div>
+                    <label class="text-[9px] text-gray-400 font-bold mb-1 block"
+                        >Font Size</label
                     >
-                        <input
-                            type="checkbox"
-                            :checked="modelValue.stack"
-                            @change="updateConfig('stack', !modelValue.stack)"
-                            class="rounded text-indigo-600 w-4 h-4"
-                        />
-                        <span class="text-xs font-semibold text-gray-700"
-                            >Stack Series (Accumulative)</span
-                        >
-                    </label>
-                    <label
-                        class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
-                    >
-                        <input
-                            type="checkbox"
-                            :checked="modelValue.horizontal"
-                            @change="
+                    <select
+                        :value="modelValue.fontSize || 12"
+                        @change="
+                            (e) =>
                                 updateConfig(
-                                    'horizontal',
-                                    !modelValue.horizontal,
+                                    'fontSize',
+                                    Number(
+                                        (e.target as HTMLSelectElement).value,
+                                    ),
                                 )
-                            "
-                            class="rounded text-indigo-600 w-4 h-4"
-                        />
-                        <span class="text-xs font-semibold text-gray-700"
-                            >Horizontal Layout</span
-                        >
-                    </label>
-                    <label
-                        class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                        "
+                        class="w-full text-xs p-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-indigo-500"
                     >
+                        <option :value="10">Small (10px)</option>
+                        <option :value="12">Medium (12px)</option>
+                        <option :value="14">Large (14px)</option>
+                        <option :value="18">X-Large (18px)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <h4
+                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
+                >
+                    Axis Visibility
+                </h4>
+                <div class="flex flex-col gap-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
                         <input
                             type="checkbox"
-                            :checked="modelValue.area"
-                            @change="updateConfig('area', !modelValue.area)"
-                            class="rounded text-indigo-600 w-4 h-4"
+                            :checked="!modelValue.hideX"
+                            @change="updateConfig('hideX', !modelValue.hideX)"
+                            class="rounded text-indigo-600"
                         />
                         <span class="text-xs font-semibold text-gray-700"
-                            >Fill Area (Volume)</span
+                            >Show X Axis</span
+                        >
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            :checked="!modelValue.hideY"
+                            @change="updateConfig('hideY', !modelValue.hideY)"
+                            class="rounded text-indigo-600"
+                        />
+                        <span class="text-xs font-semibold text-gray-700"
+                            >Show Y Axis</span
                         >
                     </label>
                 </div>
             </div>
+        </section>
 
-            <div class="space-y-4">
+        <hr class="border-gray-50" />
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+                <h4
+                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3"
+                >
+                    Layout Controls
+                </h4>
+                <label
+                    class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                >
+                    <input
+                        type="checkbox"
+                        :checked="modelValue.stack"
+                        @change="updateConfig('stack', !modelValue.stack)"
+                        class="rounded text-indigo-600 w-4 h-4"
+                    />
+                    <span class="text-xs font-semibold text-gray-700"
+                        >Stack Series</span
+                    >
+                </label>
+                <label
+                    class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                >
+                    <input
+                        type="checkbox"
+                        :checked="modelValue.horizontal"
+                        @change="
+                            updateConfig('horizontal', !modelValue.horizontal)
+                        "
+                        class="rounded text-indigo-600 w-4 h-4"
+                    />
+                    <span class="text-xs font-semibold text-gray-700"
+                        >Horizontal Layout</span
+                    >
+                </label>
+                <label
+                    class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition"
+                >
+                    <input
+                        type="checkbox"
+                        :checked="modelValue.showLabels"
+                        @change="
+                            updateConfig('showLabels', !modelValue.showLabels)
+                        "
+                        class="rounded text-indigo-600 w-4 h-4"
+                    />
+                    <span class="text-xs font-semibold text-gray-700"
+                        >Show Data Labels</span
+                    >
+                </label>
+            </div>
+
+            <div class="space-y-3">
                 <h4
                     class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
                 >
                     Formatting
                 </h4>
-                <div class="space-y-3">
-                    <div>
-                        <label
-                            class="text-[9px] text-gray-400 font-bold mb-1 block"
-                            >Value Suffix (e.g. %, $)</label
-                        >
-                        <input
-                            :value="modelValue.suffix"
-                            @input="
-                                (e) =>
-                                    updateConfig(
-                                        'suffix',
-                                        (e.target as HTMLInputElement).value,
-                                    )
-                            "
-                            class="w-full text-xs p-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Unit..."
-                        />
-                    </div>
-                    <div>
-                        <label
-                            class="text-[9px] text-gray-400 font-bold mb-1 block"
-                            >Decimal Precision</label
-                        >
-                        <select
-                            :value="modelValue.precision || 0"
-                            @change="
-                                (e) =>
-                                    updateConfig(
-                                        'precision',
-                                        Number(
-                                            (e.target as HTMLSelectElement)
-                                                .value,
-                                        ),
-                                    )
-                            "
-                            class="w-full text-xs p-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-indigo-500"
-                        >
-                            <option :value="0">0 (Whole Numbers)</option>
-                            <option :value="1">0.0 (One Decimal)</option>
-                            <option :value="2">0.00 (Two Decimals)</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="text-[9px] text-gray-400 font-bold mb-1 block"
+                        >Value Suffix (%, $)</label
+                    >
+                    <input
+                        :value="modelValue.suffix"
+                        @input="
+                            (e) =>
+                                updateConfig(
+                                    'suffix',
+                                    (e.target as HTMLInputElement).value,
+                                )
+                        "
+                        class="w-full text-xs p-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="e.g. USD"
+                    />
+                </div>
+                <div>
+                    <label class="text-[9px] text-gray-400 font-bold mb-1 block"
+                        >Decimal Precision</label
+                    >
+                    <select
+                        :value="modelValue.precision || 0"
+                        @change="
+                            (e) =>
+                                updateConfig(
+                                    'precision',
+                                    Number(
+                                        (e.target as HTMLSelectElement).value,
+                                    ),
+                                )
+                        "
+                        class="w-full text-xs p-2 bg-gray-50 rounded-lg border-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <option :value="0">0 (Whole)</option>
+                        <option :value="1">0.0</option>
+                        <option :value="2">0.00</option>
+                    </select>
                 </div>
             </div>
         </section>
@@ -186,15 +295,11 @@ const updateConfig = (key: string, value: any) => {
 
         <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <div class="flex justify-between mb-2">
-                    <label
-                        class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
-                        >Line Weight</label
-                    >
-                    <span class="text-[10px] font-bold text-indigo-600"
-                        >{{ modelValue.lineWidth || 2 }}px</span
-                    >
-                </div>
+                <label
+                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between"
+                    >Line Weight
+                    <span>{{ modelValue.lineWidth || 2 }}px</span></label
+                >
                 <input
                     type="range"
                     min="1"
@@ -207,19 +312,15 @@ const updateConfig = (key: string, value: any) => {
                                 Number((e.target as HTMLInputElement).value),
                             )
                     "
-                    class="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    class="w-full accent-indigo-600 mt-2"
                 />
             </div>
             <div>
-                <div class="flex justify-between mb-2">
-                    <label
-                        class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
-                        >Dot Size</label
-                    >
-                    <span class="text-[10px] font-bold text-indigo-600"
-                        >{{ modelValue.symbolSize ?? 4 }}px</span
-                    >
-                </div>
+                <label
+                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between"
+                    >Dot Size
+                    <span>{{ modelValue.symbolSize ?? 4 }}px</span></label
+                >
                 <input
                     type="range"
                     min="0"
@@ -232,9 +333,56 @@ const updateConfig = (key: string, value: any) => {
                                 Number((e.target as HTMLInputElement).value),
                             )
                     "
-                    class="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    class="w-full accent-indigo-600 mt-2"
                 />
+            </div>
+        </section>
+        <section class="border-t pt-4">
+            <h4
+                class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3"
+            >
+                Column Specific Styles
+            </h4>
+            <div
+                class="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar"
+            >
+                <div
+                    v-for="i in 5"
+                    :key="i"
+                    class="flex items-center justify-between bg-gray-50 p-2 rounded-xl"
+                >
+                    <span class="text-[10px] font-bold text-gray-600 uppercase"
+                        >Col {{ i }}</span
+                    >
+                    <div
+                        class="flex gap-1 bg-white p-1 rounded-lg border border-gray-100"
+                    >
+                        <button
+                            v-for="type in ['bar', 'line', 'scatter']"
+                            :key="type"
+                            @click="updateColumnType(`val${i}`, type)"
+                            :class="[
+                                'px-2 py-1 text-[9px] rounded font-black uppercase transition',
+                                modelValue.columnTypes?.[`val${i}`] === type
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'text-gray-400',
+                            ]"
+                        >
+                            {{ type }}
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+</style>

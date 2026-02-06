@@ -21,66 +21,173 @@ const activeChart = computed(() => {
 
 // 3. Dynamic Multi-Series Chart Logic
 const chartOptions = computed(() => {
-    const data = activeChart.value?.rawData;
     const config = activeChart.value?.config || {};
-    if (!data || !Array.isArray(data)) return {};
+    const globalType = activeChart.value?.type || "bar";
+    const raw = activeChart.value?.rawData || [];
 
-    // Filter out rows without labels
-    const filteredData = data.filter(
-        (row) => row.label && row.label.trim() !== "",
-    );
-    const seriesKeys = Object.keys(filteredData[0] || {}).filter((k) =>
+    // 1. Filter data: only rows with a label
+    const filtered = raw.filter((r) => r.label && r.label.trim() !== "");
+    if (filtered.length === 0) return {};
+
+    const labels = filtered.map((r) => r.label);
+    const seriesKeys = Object.keys(filtered[0] || {}).filter((k) =>
         k.startsWith("val"),
     );
-    const labels = filteredData.map((r) => r.label);
 
-    const series = seriesKeys.map((key) => ({
-        name: key.replace("val", "Column "),
-        type: activeChart.value?.type || "bar",
-        data: filteredData.map((row) => Number(row[key]) || 0),
+    // 2. Handle Pie & Donut (Special Case: No Axes)
+    if (globalType === "pie" || globalType === "donut") {
+        return {
+            color: config.palette || palettes.vibrant,
+            tooltip: {
+                trigger: "item",
+                formatter: `{b}: {c}${config.suffix || ""} ({d}%)`,
+            },
+            legend: {
+                show: true,
+                bottom: 0,
+                textStyle: { fontSize: config.fontSize || 12 },
+            },
+            series: [
+                {
+                    type: "pie",
+                    radius: globalType === "donut" ? ["40%", "70%"] : "70%",
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: "#fff",
+                        borderWidth: 2,
+                    },
+                    label: {
+                        show: config.showLabels,
+                        fontSize: config.fontSize || 12,
+                        formatter: `{b}: {c}${config.suffix || ""}`,
+                    },
+                    data: filtered.map((r) => ({
+                        value: Number(r.val1) || 0, // Pies usually visualize the first data column
+                        name: r.label,
+                    })),
+                },
+            ],
+        };
+    }
 
-        // Customizations
-        stack: config.stack ? "total" : null,
-        smooth: config.smooth ?? true,
-        lineStyle: { width: config.lineWidth || 2 },
-        symbolSize: config.symbolSize ?? 4,
-        areaStyle: config.area ? { opacity: 0.3 } : null,
+    // 3. Multi-Series Logic (Mixed Mode: Bar, Line, Area, Scatter, Step)
+    const series = seriesKeys.map((key, idx) => {
+        // Check if this specific column has its own type, else use global
+        const specificType = config.columnTypes?.[key] || globalType;
 
-        emphasis: { focus: "series" },
-    }));
+        const isArea = specificType === "area";
+        const isStep = specificType === "step";
+        const isScatter = specificType === "scatter";
 
+        return {
+            name: key.replace("val", "Column "),
+            // ECharts identifies Area/Step as 'line' with extra properties
+            type:
+                isArea || isStep
+                    ? "line"
+                    : isScatter
+                      ? "scatter"
+                      : specificType,
+            data: filtered.map((r) => Number(r[key]) || 0),
+
+            // Visual Styles
+            step: isStep ? "start" : false,
+            smooth: config.smooth ?? true,
+            lineStyle: { width: config.lineWidth || 2 },
+            symbolSize: isScatter ? 12 : (config.symbolSize ?? 4),
+            areaStyle: isArea || config.area ? { opacity: 0.3 } : null,
+
+            // Stacking (usually only for Bars/Area)
+            stack: config.stack ? "total" : null,
+
+            // Data Labels
+            label: {
+                show: config.showLabels || false,
+                position: config.horizontal ? "right" : "top",
+                fontSize: config.fontSize || 12,
+                formatter: (p) =>
+                    `${p.value.toFixed(config.precision || 0)}${config.suffix || ""}`,
+            },
+
+            // Goal Line (MarkLine) - Only attach to the first series to avoid clutter
+            markLine:
+                idx === 0 && config.goalValue
+                    ? {
+                          symbol: ["none", "none"],
+                          data: [
+                              {
+                                  yAxis: config.goalValue,
+                                  lineStyle: {
+                                      color: "#f43f5e",
+                                      type: "dashed",
+                                      width: 2,
+                                  },
+                                  label: {
+                                      formatter: config.goalLabel || "Target",
+                                      position: "end",
+                                      fontSize: config.fontSize || 12,
+                                      fontWeight: "bold",
+                                  },
+                              },
+                          ],
+                      }
+                    : null,
+        };
+    });
+
+    // 4. Final Chart Configuration
     return {
-        // Apply the Palette
+        // General Styles
         color: config.palette || palettes.vibrant,
+        textStyle: {
+            fontSize: config.fontSize || 12,
+            fontFamily: "Inter, sans-serif",
+        },
 
+        // Interaction
         tooltip: {
             trigger: "axis",
-            formatter: (params) => {
-                let res = `<div class="font-bold mb-1">${params[0].name}</div>`;
-                params.forEach((p) => {
-                    const val = p.value.toFixed(config.precision || 0);
-                    res += `<div class="flex justify-between gap-4 text-xs">
-                                <span>${p.marker} ${p.seriesName}</span>
-                                <span class="font-bold">${val}${config.suffix || ""}</span>
-                            </div>`;
-                });
-                return res;
-            },
+            axisPointer: { type: "shadow" },
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowColor: "rgba(0,0,0,0.1)",
+        },
+        legend: {
+            show: true,
+            bottom: 5,
+            type: "scroll",
+            textStyle: { fontSize: config.fontSize || 12 },
+        },
+        grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "15%",
+            top: "10%",
+            containLabel: true,
         },
 
-        legend: { type: "scroll", bottom: 10 },
-
-        // Horizontal Switch
+        // Axis Logic (Supports Horizontal Flip & Visibility)
         xAxis: {
+            show: !config.hideX,
             type: config.horizontal ? "value" : "category",
             data: config.horizontal ? null : labels,
+            axisLabel: { fontSize: config.fontSize || 12 },
+            splitLine: { show: config.showGrid || false },
         },
         yAxis: {
+            show: !config.hideY,
             type: config.horizontal ? "category" : "value",
             data: config.horizontal ? labels : null,
+            axisLabel: { fontSize: config.fontSize || 12 },
+            splitLine: { show: config.showGrid || false },
         },
 
-        series: series,
+        // Animation for that "Premium" feel
+        animationDuration: 1000,
+        animationEasing: "cubicOut",
+
+        series,
     };
 });
 
@@ -190,9 +297,17 @@ const deleteChart = async (id: string) => {
                         "
                         class="text-xl font-bold bg-transparent border-b-2 border-transparent focus:border-indigo-500 focus:outline-none transition-colors"
                     />
-                    <div class="flex bg-gray-100 p-1 rounded-lg">
+                    <div class="flex bg-gray-100 p-1 rounded-xl gap-1">
                         <button
-                            v-for="t in ['bar', 'line']"
+                            v-for="t in [
+                                'bar',
+                                'line',
+                                'area',
+                                'scatter',
+                                'step',
+                                'pie',
+                                'donut',
+                            ]"
                             :key="t"
                             @click="
                                 store.updateChartData(activeChart.id, {
@@ -200,10 +315,10 @@ const deleteChart = async (id: string) => {
                                 })
                             "
                             :class="[
-                                'px-4 py-1.5 text-xs font-bold rounded-md transition uppercase',
+                                'px-3 py-1.5 text-[9px] font-black rounded-lg transition uppercase tracking-tighter',
                                 activeChart.type === t
                                     ? 'bg-white shadow text-indigo-600'
-                                    : 'text-gray-500',
+                                    : 'text-gray-400 hover:text-gray-600',
                             ]"
                         >
                             {{ t }}
@@ -252,7 +367,7 @@ const deleteChart = async (id: string) => {
                     </div>
                 </div>
 
-                <div class="col-span-12 lg:col-span-7 flex flex-col gap-4">
+                <div class="col-span-12 lg:col-span-7 flex gap-4">
                     <ChartSettings
                         v-if="activeChart"
                         v-model="activeChart.config"
