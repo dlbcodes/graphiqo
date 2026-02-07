@@ -1,35 +1,17 @@
 <script setup lang="ts">
+import { CHART_PALETTES } from "@/utils/chartConstants";
+
 const props = defineProps<{
     modelValue: any;
 }>();
 
 const emit = defineEmits(["update:modelValue"]);
 
-const palettes = {
-    vibrant: [
-        "#4f39f6",
-        "#10b981",
-        "#f59e0b",
-        "#ef4444",
-        "#8b5cf6",
-        "#06b6d4",
-        "#ec4899",
-    ],
-    corporate: [
-        "#1e293b",
-        "#334155",
-        "#475569",
-        "#64748b",
-        "#94a3b8",
-        "#cbd5e1",
-    ],
-    sunset: ["#f43f5e", "#fb923c", "#facc15", "#a78bfa", "#22d3ee"],
-    monochrome: ["#111827", "#374151", "#6b7280", "#9ca3af", "#d1d5db"],
-};
+const palettes = CHART_PALETTES;
 
 const updateColumnType = (colKey: string, type: string) => {
     const currentTypes = props.modelValue.columnTypes || {};
-    updateConfig('columnTypes', { ...currentTypes, [colKey]: type });
+    updateConfig("columnTypes", { ...currentTypes, [colKey]: type });
 };
 
 const updateConfig = (key: string, value: any) => {

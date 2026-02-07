@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { CHART_PALETTES } from "@/utils/chartConstants";
+
 definePageMeta({ middleware: "admin" });
 
 const route = useRoute();
@@ -32,7 +34,7 @@ const chartOptions = computed(() => {
     // 1. Determine Palette: Brand Palette > Config Palette > Default Vibrant
     const finalPalette = brand?.palette?.length
         ? brand.palette
-        : config.palette || palettes.vibrant;
+        : config.palette || CHART_PALETTES.vibrant;
 
     // 2. Determine Text Color
     const finalTextColor = brand?.textColor || "#374151";

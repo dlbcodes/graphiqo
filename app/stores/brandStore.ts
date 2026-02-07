@@ -5,6 +5,7 @@ import { useToast } from "@/composables/useToast";
 
 export const useBrandStore = defineStore("brand", () => {
 	const { addToast } = useToast();
+	const dashboardStore = useDashboardStore();
 
 	// STATE
 	const brands = ref<BrandProfile[]>([]);
@@ -13,6 +14,13 @@ export const useBrandStore = defineStore("brand", () => {
 
 	// GETTERS (Computed)
 	const getBrandById = (id: string) => brands.value.find(b => b.id === id);
+
+	const activeBrand = computed(() => {
+		const activeChart = dashboardStore.currentDashboard?.charts.find(
+			c => c.id === dashboardStore.activeChartId
+		);
+		return brands.value.find(b => b.id === activeChart?.brandProfileId) || null;
+	});
 
 	// ACTIONS
 	async function fetchBrands() {
@@ -82,6 +90,7 @@ export const useBrandStore = defineStore("brand", () => {
 		error,
 
 		// Getters
+		activeBrand,
 		getBrandById,
 
 		// Actions
