@@ -33,13 +33,13 @@ model BrandProfile {
   profileId String @db.Uuid
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  name         String  // e.g., "Client A", "Personal Brand"
-  primaryColor String  @default("#4f39f6")
-  secondaryColor String?
-  fontFamily   String  @default("Inter")
-  logoUrl      String? // For the watermark overlay
+  name         String   // e.g., "Client A"
+  palette      String[] // ["#4f39f6", "#10b981", ...]
+  textColor    String   @default("#374151") 
+  fontFamily   String   @default("Inter")
+  logoUrl      String? 
 
-  charts       Chart[] // Links charts to this specific brand style
+  charts       Chart[]
 
   @@map("brand_profiles")
 }

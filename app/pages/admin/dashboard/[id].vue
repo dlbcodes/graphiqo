@@ -3,10 +3,12 @@ definePageMeta({ middleware: "admin" });
 
 const route = useRoute();
 const store = useDashboardStore();
+const brandStore = useBrandStore();
 
 // 1. Initial Load
 onMounted(async () => {
     await store.fetchDashboard(route.params.id as string);
+    brandStore.fetchBrands();
     if (store.currentDashboard?.charts.length && !store.activeChartId) {
         store.activeChartId = store.currentDashboard.charts[0].id;
     }
@@ -24,6 +26,16 @@ const chartOptions = computed(() => {
     const config = activeChart.value?.config || {};
     const globalType = activeChart.value?.type || "bar";
     const raw = activeChart.value?.rawData || [];
+
+    const brand = brandStore.activeBrand; // The selected profile
+
+    // 1. Determine Palette: Brand Palette > Config Palette > Default Vibrant
+    const finalPalette = brand?.palette?.length
+        ? brand.palette
+        : config.palette || palettes.vibrant;
+
+    // 2. Determine Text Color
+    const finalTextColor = brand?.textColor || "#374151";
 
     // 1. Filter data: only rows with a label
     const filtered = raw.filter((r) => r.label && r.label.trim() !== "");
@@ -138,10 +150,11 @@ const chartOptions = computed(() => {
     // 4. Final Chart Configuration
     return {
         // General Styles
-        color: config.palette || palettes.vibrant,
+        color: finalPalette,
         textStyle: {
+            color: finalTextColor,
+            fontFamily: brand?.fontFamily || config.fontFamily || "Inter",
             fontSize: config.fontSize || 12,
-            fontFamily: "Inter, sans-serif",
         },
 
         // Interaction
