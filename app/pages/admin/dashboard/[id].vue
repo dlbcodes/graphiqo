@@ -11,9 +11,13 @@ onMounted(async () => {
     await brandStore.fetchBrands();
 });
 
-const activeChart = computed(() =>
-    store.currentDashboard?.charts.find((c) => c.id === store.activeChartId),
-);
+const activeChart = computed(() => {
+    const charts = store.currentDashboard?.charts;
+    if (!charts || charts.length === 0) return null;
+
+    // Find by ID, or default to the first chart in the list
+    return charts.find((c) => c.id === store.activeChartId) || charts[0];
+});
 
 // The one-line chart options
 const chartOptions = computed(() =>
@@ -69,7 +73,10 @@ const deleteChart = async (id: string) => {
                     "
                     class="font-bold border-none"
                 />
-                <div class="flex bg-gray-100 p-1 rounded-xl gap-1">
+                <div
+                    v-if="activeChart"
+                    class="flex bg-gray-100 p-1 rounded-xl gap-1"
+                >
                     <button
                         v-for="t in [
                             'bar',
@@ -86,7 +93,7 @@ const deleteChart = async (id: string) => {
                         "
                         :class="[
                             'px-3 py-1.5 text-[9px] font-black rounded-lg transition uppercase tracking-tighter',
-                            activeChart.type === t
+                            activeChart?.type === t // Added ? here
                                 ? 'bg-white shadow text-indigo-600'
                                 : 'text-gray-400 hover:text-gray-600',
                         ]"
