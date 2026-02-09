@@ -89,12 +89,12 @@ onUnmounted(() => {
         </div>
 
         <div
-            class="mt-0 pt-0 border-t border-dashed flex flex-col justify-between items-start shrink-0"
+            class="flex flex-col justify-between items-start gap-y-2 shrink-0"
             :class="isDark ? 'border-stone-800' : 'border-stone-200'"
         >
-            <div class="w-full flex gap-2">
+            <div class="w-full flex flex-col gap-y-1">
                 <span
-                    class="font-bold uppercase text-[9px] mt-1 opacity-40"
+                    class="font-bold uppercase text-xs mt-1 opacity-40"
                     :class="isDark ? 'text-stone-400' : 'text-stone-500'"
                     >Note:</span
                 >
@@ -109,7 +109,7 @@ onUnmounted(() => {
                     "
                     placeholder="Add notes about this data..."
                     rows="2"
-                    class="w-full text-[10px] leading-relaxed italic bg-transparent border-none focus:ring-0 p-0 resize-none placeholder:text-stone-300 transition-opacity"
+                    class="w-full text-xs leading-relaxed italic bg-transparent border-none focus:ring-0 p-0 resize-none placeholder:text-stone-300 transition-opacity"
                     :class="isDark ? 'text-stone-400' : 'text-stone-500'"
                 ></textarea>
             </div>

@@ -5,8 +5,9 @@ import {
     PhChartLine,
     PhHouse,
     PhDownloadSimple,
+    PhPresentation,
+    PhQuestion,
 } from "@phosphor-icons/vue";
-import Button from "~/components/base/Button.vue";
 
 definePageMeta({ middleware: "admin" });
 
@@ -52,6 +53,14 @@ const updateChart = (data: any) => {
     <div
         class="flex h-screen overflow-hidden relative font-sans bg-stone-50 bg-[repeating-linear-gradient(135deg,var(--color-stone-100)_0px,var(--color-stone-100)_1px,transparent_1px,transparent_20px)]"
     >
+        <div class="fixed left-8 bottom-8 z-50">
+            <button
+                class="size-12 rounded-full bg-white shadow-lg border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-all hover:scale-105 active:scale-95"
+            >
+                <PhQuestion class="size-6" />
+            </button>
+        </div>
+
         <DockMenu v-model="activeTab">
             <template #data>
                 <div v-if="activeChart" class="h-full">
@@ -101,7 +110,6 @@ const updateChart = (data: any) => {
 
         <main
             class="flex-1 flex flex-col min-w-0 transition-all duration-500 ease-in-out"
-            :class="activeTab ? 'pl-[400px]' : 'pl-0'"
         >
             <header
                 class="h-18 px-6 flex items-center justify-between shrink-0"
@@ -126,12 +134,14 @@ const updateChart = (data: any) => {
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <button
-                        class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all"
-                    >
-                        <PhShareNetwork class="size-4" />
+                    <Button variant="secondary">
+                        <PhPresentation class="size-5 shrink-0" />
+                        Presentation
+                    </Button>
+                    <Button>
+                        <PhShareNetwork class="size-5 shrink-0" />
                         Share
-                    </button>
+                    </Button>
                 </div>
             </header>
 

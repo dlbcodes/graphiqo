@@ -26,7 +26,7 @@ const updateBrandLink = (brandId: string) => {
 
 <template>
     <div
-        class="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm max-h-[70vh] overflow-y-auto custom-scrollbar"
+        class="space-y-6 bg-white p-6 rounded-3xl overflow-y-auto custom-scrollbar"
     >
         <section>
             <h4

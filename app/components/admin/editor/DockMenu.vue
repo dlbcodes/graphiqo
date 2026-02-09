@@ -20,36 +20,17 @@ const toggleTab = (id: string) => {
 </script>
 
 <template>
-    <div class="fixed left-8 top-8 bottom-8 z-60 flex pointer-events-none">
-        <div
-            class="self-center flex flex-col gap-y-2 shadow-sm rounded-2xl bg-white p-1 border border-stone-200 pointer-events-auto"
-        >
-            <div
-                v-for="tab in tabs"
-                :key="tab.id"
-                @click="toggleTab(tab.id)"
-                :class="[
-                    'flex flex-col justify-center items-center size-12 shrink-0 rounded-xl cursor-pointer transition-colors ease-in duration-150',
-                    modelValue === tab.id
-                        ? 'bg-stone-100 text-indigo-600'
-                        : 'text-stone-900 hover:bg-stone-100',
-                ]"
-            >
-                <component :is="tab.icon" class="size-6" />
-                <span class="text-[10px] font-medium">{{ tab.label }}</span>
-            </div>
-        </div>
-
-        <Transition name="slide-panel">
+    <div class="fixed right-8 top-8 bottom-8 z-60 flex pointer-events-none">
+        <Transition name="slide-panel-left">
             <aside
                 v-if="modelValue"
-                class="ml-4 w-[320px] bg-white shadow-2xl rounded-[2.5rem] border border-stone-200 flex flex-col overflow-hidden pointer-events-auto"
+                class="ml-4 w-[320px] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)] rounded-2xl flex flex-col overflow-hidden pointer-events-auto"
             >
                 <div
-                    class="p-6 border-b border-stone-50 flex justify-between items-center shrink-0"
+                    class="py-2 px-4 border-b border-stone-50 flex justify-between items-center shrink-0"
                 >
                     <h3
-                        class="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400"
+                        class="text-base font-semibold text-stone-950 capitalize"
                     >
                         {{ modelValue }} Editor
                     </h3>
@@ -66,17 +47,36 @@ const toggleTab = (id: string) => {
                 </div>
             </aside>
         </Transition>
+        <div
+            class="self-center flex flex-col gap-y-2 shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)] rounded-2xl bg-white p-1 pointer-events-auto"
+        >
+            <div
+                v-for="tab in tabs"
+                :key="tab.id"
+                @click="toggleTab(tab.id)"
+                :class="[
+                    'flex flex-col justify-center items-center size-12 shrink-0 rounded-xl cursor-pointer transition-colors ease-in duration-150',
+                    modelValue === tab.id
+                        ? 'bg-stone-100 text-indigo-600'
+                        : 'text-stone-900 hover:bg-stone-100',
+                ]"
+            >
+                <component :is="tab.icon" class="size-6" />
+                <span class="text-[10px] font-medium">{{ tab.label }}</span>
+            </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
-.slide-panel-enter-active,
-.slide-panel-leave-active {
+/* Flip the entry direction: slides from right to left */
+.slide-panel-left-enter-active,
+.slide-panel-left-leave-active {
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.slide-panel-enter-from,
-.slide-panel-leave-to {
-    transform: translateX(-20px) scale(0.95);
+.slide-panel-left-enter-from,
+.slide-panel-left-leave-to {
+    transform: translateX(20px) scale(0.95);
     opacity: 0;
 }
 

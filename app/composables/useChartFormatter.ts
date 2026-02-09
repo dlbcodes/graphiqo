@@ -109,7 +109,7 @@ export const useChartFormatter = () => {
 			grid: {
 				left: '3%',
 				right: '4%',
-				bottom: '15%',
+				bottom: '10%',
 				containLabel: true,
 				// NEW: Toggle border if grid is off for a cleaner look
 				show: false
