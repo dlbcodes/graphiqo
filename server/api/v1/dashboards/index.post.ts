@@ -23,18 +23,26 @@ export default defineEventHandler(async (event) => {
 		});
 
 		// 2. Create the Initial Chart linked to that dashboard
+		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 		await tx.chart.create({
 			data: {
 				dashboardId: dashboard.id,
-				name: "First Chart",
+				name: "Monthly Performance",
 				type: "bar",
-				rawData: [
-					// Change "value" to "val1" to match your DataSheet component
-					{ label: "Example 1", val1: 10 },
-					{ label: "Example 2", val1: 25 },
-					{ label: "Example 3", val1: 15 }
-				],
-				config: { theme: "default" }
+				rawData: months.map((month, index) => ({
+					label: month,
+					// Simulating some realistic random data growth
+					val1: Math.floor(Math.random() * 40) + 50 + index * 2,
+					val2: Math.floor(Math.random() * 30) + 40 + index * 3
+				})),
+				config: {
+					theme: "default",
+					showLegend: true,
+					smooth: true,
+					// Useful for 12 points of data
+					showGrid: true
+				}
 			}
 		});
 

@@ -19,8 +19,12 @@ const { formatOptions } = useChartFormatter();
 const activeTab = ref<"data" | "type" | "settings" | "brand" | null>(null);
 
 onMounted(async () => {
-    await store.fetchDashboard(route.params.id as string);
-    await brandStore.fetchBrands();
+    // Run these in parallel for better performance
+    await Promise.all([
+        store.fetchDashboard(route.params.id as string),
+        store.fetchDashboards(), // This fills the 'dashboards' array for the breadcrumb
+        brandStore.fetchBrands(),
+    ]);
 });
 
 // Computed: Get the currently active chart object
@@ -44,7 +48,10 @@ const updateChart = (data: any) => {
 </script>
 
 <template>
-    <div class="flex h-screen overflow-hidden relative font-sans bg-[#F9F8F6]">
+    <!-- bg-[#F9F8F6] -->
+    <div
+        class="flex h-screen overflow-hidden relative font-sans bg-stone-50 bg-[repeating-linear-gradient(135deg,var(--color-stone-100)_0px,var(--color-stone-100)_1px,transparent_1px,transparent_20px)]"
+    >
         <DockMenu v-model="activeTab">
             <template #data>
                 <div v-if="activeChart" class="h-full">
@@ -97,69 +104,30 @@ const updateChart = (data: any) => {
             :class="activeTab ? 'pl-[400px]' : 'pl-0'"
         >
             <header
-                class="h-16 px-4 flex items-center justify-between shrink-0"
+                class="h-18 px-6 flex items-center justify-between shrink-0"
             >
-                <div class="flex items-center gap-x-2">
+                <div class="flex items-center gap-3">
                     <Button to="/admin" variant="icon" size="icon">
                         <PhHouse class="size-5 shrink-0" />
                     </Button>
-                </div>
-                <div>
-                    <Button to="/admin" size="sm">
-                        <PhDownloadSimple class="size-5 shrink-0" />
-                        Share
-                    </Button>
-                </div>
-            </header>
 
-            <header
-                class="h-24 px-12 flex items-center justify-between shrink-0"
-            >
-                <div class="flex items-center gap-6">
-                    <button
-                        @click="navigateTo('/admin')"
-                        class="p-2.5 rounded-full bg-white border border-stone-200 hover:bg-stone-50 transition shadow-sm text-stone-600"
-                    >
-                        <PhArrowLeft class="size-5" />
-                    </button>
-                    <div class="flex flex-col">
-                        <input
-                            v-if="activeChart"
-                            v-model="activeChart.name"
-                            @blur="updateChart({ name: activeChart.name })"
-                            class="text-xl font-bold bg-transparent border-none focus:outline-none text-stone-800 p-0"
-                        />
-                        <span
-                            class="text-[10px] font-bold text-stone-400 uppercase tracking-widest"
-                        >
-                            Editing Dashboard:
-                            {{ store.currentDashboard?.name }}
-                        </span>
-                    </div>
+                    <BreadcrumbNav
+                        :dashboards="store.dashboards"
+                        :current-dashboard-name="store.currentDashboard?.title"
+                        :charts="store.currentDashboard?.charts || []"
+                        :active-chart-id="store.activeChartId"
+                        :active-chart-name="activeChart?.name"
+                        @go-back="navigateTo('/admin')"
+                        @change-dashboard="
+                            (id) => navigateTo(`/admin/dashboard/${id}`)
+                        "
+                        @change-chart="(id) => (store.activeChartId = id)"
+                    />
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <select
-                        :value="store.activeChartId || activeChart?.id"
-                        @change="
-                            (e) =>
-                                (store.activeChartId = (
-                                    e.target as HTMLSelectElement
-                                ).value)
-                        "
-                        class="bg-white border border-stone-200 rounded-xl px-4 py-2 text-xs font-bold text-stone-600 outline-none shadow-sm focus:ring-2 focus:ring-indigo-500"
-                    >
-                        <option
-                            v-for="c in store.currentDashboard?.charts"
-                            :key="c.id"
-                            :value="c.id"
-                        >
-                            {{ c.name }}
-                        </option>
-                    </select>
-
                     <button
-                        class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all"
+                        class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all"
                     >
                         <PhShareNetwork class="size-4" />
                         Share
@@ -169,7 +137,7 @@ const updateChart = (data: any) => {
 
             <div class="flex-1 px-12 pb-12 flex items-center justify-center">
                 <div
-                    class="w-full h-full max-w-6xl rounded-[3rem] p-12 transition-all duration-700 border border-white relative overflow-hidden group shadow-2xl"
+                    class="w-full h-full max-w-6xl rounded-4xl p-6 transition-all duration-700 relative overflow-hidden group shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
                     :class="
                         activeChart?.config?.darkMode
                             ? 'bg-[#0F0F0F] border-stone-800'
@@ -187,7 +155,15 @@ const updateChart = (data: any) => {
                         </div>
                     </div>
 
-                    <ChartPreview v-else :options="chartOptions" />
+                    <ChartPreview
+                        v-else
+                        :options="chartOptions"
+                        :chart-data="activeChart"
+                        @updateMetadata="
+                            (payload) =>
+                                store.updateChartData(activeChart.id, payload)
+                        "
+                    />
                 </div>
             </div>
         </main>

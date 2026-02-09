@@ -29,8 +29,10 @@ export const useDashboardStore = defineStore("dashboard", () => {
 			const data = await dashboardApi.getDashboard(id);
 			currentDashboard.value = data;
 
-			// Set initial active chart if one exists and none is selected
-			if (data.charts.length > 0 && !activeChartId.value) {
+			// Pro Tip: If activeChartId is null OR the current activeChartId 
+			// doesn't belong to this new dashboard, reset it to the first chart.
+			const chartExists = data.charts.find(c => c.id === activeChartId.value);
+			if (data.charts.length > 0 && !chartExists) {
 				activeChartId.value = data.charts[0].id;
 			}
 		} finally {
