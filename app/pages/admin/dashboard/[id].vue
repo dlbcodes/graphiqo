@@ -35,9 +35,17 @@ const activeChart = computed(() => {
     return charts.find((c) => c.id === store.activeChartId) || charts[0];
 });
 
-// Computed: Format options for ECharts using the active chart and brand
+const linkedBrand = computed(() => {
+    const brandId = activeChart.value?.config?.brandProfileId;
+    if (!brandId) return null;
+
+    // Find the brand in the store that matches the ID saved in the chart config
+    return brandStore.brands.find((b) => b.id === brandId);
+});
+
+// Computed: Format options using the specific brand found above
 const chartOptions = computed(() =>
-    formatOptions(activeChart.value, brandStore.activeBrand),
+    formatOptions(activeChart.value, linkedBrand.value),
 );
 
 // Helper: Quick update for the store
@@ -69,16 +77,16 @@ const updateChart = (data: any) => {
             </template>
 
             <template #type>
-                <div v-if="activeChart" class="p-8 grid grid-cols-3 gap-4">
+                <div v-if="activeChart" class="p-2 grid grid-cols-3 gap-2">
                     <button
                         v-for="chart in CHART_TYPES"
                         :key="chart.key"
                         @click="updateChart({ type: chart.key })"
                         :class="[
-                            'aspect-square rounded-2xl border-2 transition-all text-xs font-medium capitalize flex flex-col items-center justify-center gap-3',
+                            'aspect-square rounded-2xl border transition-all text-xs font-medium capitalize flex flex-col items-center justify-center gap-2',
                             activeChart.type === chart.key
                                 ? 'border-indigo-600 bg-indigo-50/50 text-indigo-600 shadow-sm'
-                                : 'border-stone-50 hover:border-stone-200 text-stone-900 bg-white',
+                                : 'border-stone-300 hover:border-stone-200 text-stone-900 bg-white',
                         ]"
                     >
                         <component :is="chart.icon" class="size-6" />
@@ -91,7 +99,7 @@ const updateChart = (data: any) => {
             </template>
 
             <template #brand>
-                <div v-if="activeChart" class="p-2">
+                <div v-if="activeChart" class="p-0">
                     <ChartSettings v-model="activeChart.config" />
                 </div>
             </template>
@@ -120,6 +128,7 @@ const updateChart = (data: any) => {
                         :charts="store.currentDashboard?.charts || []"
                         :active-chart-id="store.activeChartId"
                         :active-chart-name="activeChart?.name"
+                        :active-chart-type="activeChart?.type"
                         @go-back="navigateTo('/admin')"
                         @change-dashboard="
                             (id) => navigateTo(`/admin/dashboard/${id}`)

@@ -28,114 +28,21 @@ const updateBrandLink = (brandId: string) => {
     <div
         class="space-y-6 bg-white p-6 rounded-3xl overflow-y-auto custom-scrollbar"
     >
-        <section>
-            <h4
-                class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3"
-            >
-                Brand Style Profile
-            </h4>
-            <select
-                :value="modelValue.brandProfileId || ''"
-                @change="
-                    (e) =>
-                        updateBrandLink((e.target as HTMLSelectElement).value)
-                "
-                class="w-full text-xs p-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl border-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            >
-                <option value="">Default (Use Palette Below)</option>
-                <option
-                    v-for="brand in brandStore.brands"
-                    :key="brand.id"
-                    :value="brand.id"
-                >
-                    ✨ {{ brand.name }}
-                </option>
-            </select>
-        </section>
-
-        <section>
-            <h4
-                class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3"
-            >
-                Color Palette
-            </h4>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button
-                    v-for="(colors, name) in palettes"
-                    :key="name"
-                    @click="updateConfig('palette', colors)"
-                    :class="[
-                        'p-2 rounded-xl border-2 transition-all flex flex-col items-center gap-2',
-                        JSON.stringify(modelValue.palette) ===
-                        JSON.stringify(colors)
-                            ? 'border-indigo-600 bg-indigo-50'
-                            : 'border-gray-50 hover:border-gray-200',
-                    ]"
-                >
-                    <div class="flex -space-x-1">
-                        <div
-                            v-for="c in colors.slice(0, 4)"
-                            :key="c"
-                            :style="{ backgroundColor: c }"
-                            class="w-4 h-4 rounded-full border border-white"
-                        />
-                    </div>
-                    <span
-                        class="text-[10px] font-bold capitalize text-gray-600"
-                        >{{ name }}</span
-                    >
-                </button>
-            </div>
-        </section>
+        <ColorSelector
+            :model-value="modelValue"
+            @update:model-value="
+                (newValue) => emit('update:modelValue', newValue)
+            "
+        />
 
         <hr class="border-gray-50" />
 
-        <section class="bg-rose-50 p-4 rounded-2xl border border-rose-100">
-            <h4
-                class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-3"
-            >
-                Goal / Target Line
-            </h4>
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-[9px] text-rose-600 font-bold mb-1 block"
-                        >Value</label
-                    >
-                    <input
-                        type="number"
-                        :value="modelValue.goalValue"
-                        @input="
-                            (e) =>
-                                updateConfig(
-                                    'goalValue',
-                                    Number(
-                                        (e.target as HTMLInputElement).value,
-                                    ),
-                                )
-                        "
-                        class="w-full text-xs p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-rose-500"
-                        placeholder="e.g. 100"
-                    />
-                </div>
-                <div>
-                    <label class="text-[9px] text-rose-600 font-bold mb-1 block"
-                        >Label</label
-                    >
-                    <input
-                        :value="modelValue.goalLabel"
-                        @input="
-                            (e) =>
-                                updateConfig(
-                                    'goalLabel',
-                                    (e.target as HTMLInputElement).value,
-                                )
-                        "
-                        class="w-full text-xs p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-rose-500"
-                        placeholder="Target"
-                    />
-                </div>
-            </div>
-        </section>
+        <GoalSettings
+            :model-value="modelValue"
+            @update:model-value="
+                (newValue) => emit('update:modelValue', newValue)
+            "
+        />
 
         <section class="grid grid-cols-2 gap-6">
             <div class="space-y-3">

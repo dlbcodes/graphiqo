@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { PhTable, PhChartBar, PhPalette, PhGear } from "@phosphor-icons/vue";
+import {
+    PhTable,
+    PhChartBar,
+    PhPalette,
+    PhGear,
+    PhX,
+} from "@phosphor-icons/vue";
+import { buttonVariants } from "~/variants/ButtonVariants";
 
 const props = defineProps<{
     modelValue: string | null;
@@ -24,21 +31,27 @@ const toggleTab = (id: string) => {
         <Transition name="slide-panel-left">
             <aside
                 v-if="modelValue"
-                class="ml-4 w-[320px] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)] rounded-2xl flex flex-col overflow-hidden pointer-events-auto"
+                class="ml-4 w-[280px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden pointer-events-auto"
             >
                 <div
-                    class="py-2 px-4 border-b border-stone-50 flex justify-between items-center shrink-0"
+                    class="py-4 px-4 border-b border-stone-100 flex justify-between items-center shrink-0"
                 >
-                    <h3
-                        class="text-base font-semibold text-stone-950 capitalize"
-                    >
+                    <h3 class="text-base font-medium text-stone-950 capitalize">
                         {{ modelValue }} Editor
                     </h3>
+
                     <button
                         @click="emit('update:modelValue', null)"
-                        class="size-8 flex items-center justify-center rounded-full hover:bg-stone-100 transition text-stone-400"
+                        :class="
+                            cn(
+                                buttonVariants({
+                                    variant: 'icon',
+                                    size: 'icon',
+                                }),
+                            )
+                        "
                     >
-                        ✕
+                        <PhX class="size-4 shrink-0" />
                     </button>
                 </div>
 

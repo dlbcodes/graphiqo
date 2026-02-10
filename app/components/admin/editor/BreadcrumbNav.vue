@@ -8,9 +8,15 @@ const props = defineProps<{
     charts: any[];
     activeChartName?: string;
     activeChartId?: string;
+    activeChartType?: string;
 }>();
 
 const emit = defineEmits(["changeDashboard", "changeChart", "goBack"]);
+
+const activeIcon = computed(() => {
+    const type = CHART_TYPES.find((t) => t.key === props.activeChartType);
+    return type ? type.icon : PhChartBar; // Fallback to Bar if not found
+});
 </script>
 
 <template>
@@ -50,7 +56,7 @@ const emit = defineEmits(["changeDashboard", "changeChart", "goBack"]);
             <button
                 class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-stone-900 transition-colors hover:bg-indigo-100 whitespace-nowrap"
             >
-                <PhChartBar class="size-5 shrink-0" />
+                <component :is="activeIcon" class="size-5 shrink-0" />
                 {{ activeChartName || "Select Chart" }}
                 <PhCaretDown class="size-3 opacity-50" />
             </button>

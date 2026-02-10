@@ -15,6 +15,7 @@ export const useChartFormatter = () => {
 			: (config.palette || CHART_PALETTES.vibrant);
 
 		const defaultText = isDark ? "#f3f4f6" : "#374151";
+		// Use brand text color if it exists, else use config or default
 		const finalTextColor = brand?.textColor || config.textColor || defaultText;
 		const finalFont = brand?.fontFamily || config.fontFamily || "Geist";
 
