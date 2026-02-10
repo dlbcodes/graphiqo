@@ -20,7 +20,7 @@ const toggleTab = (id: string) => {
 </script>
 
 <template>
-    <div class="fixed right-8 top-8 bottom-8 z-60 flex pointer-events-none">
+    <div class="fixed right-8 top-14 bottom-8 z-60 flex pointer-events-none">
         <Transition name="slide-panel-left">
             <aside
                 v-if="modelValue"

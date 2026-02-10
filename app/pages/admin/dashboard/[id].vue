@@ -69,28 +69,23 @@ const updateChart = (data: any) => {
             </template>
 
             <template #type>
-                <div v-if="activeChart" class="p-8 grid grid-cols-2 gap-4">
+                <div v-if="activeChart" class="p-8 grid grid-cols-3 gap-4">
                     <button
-                        v-for="t in [
-                            'bar',
-                            'line',
-                            'area',
-                            'scatter',
-                            'step',
-                            'pie',
-                            'donut',
-                        ]"
-                        :key="t"
-                        @click="updateChart({ type: t })"
+                        v-for="chart in CHART_TYPES"
+                        :key="chart.key"
+                        @click="updateChart({ type: chart.key })"
                         :class="[
-                            'py-6 rounded-2xl border-2 transition-all text-[10px] font-black uppercase tracking-widest flex flex-col items-center gap-3',
-                            activeChart.type === t
+                            'aspect-square rounded-2xl border-2 transition-all text-xs font-medium capitalize flex flex-col items-center justify-center gap-3',
+                            activeChart.type === chart.key
                                 ? 'border-indigo-600 bg-indigo-50/50 text-indigo-600 shadow-sm'
-                                : 'border-stone-50 hover:border-stone-200 text-stone-400 bg-white',
+                                : 'border-stone-50 hover:border-stone-200 text-stone-900 bg-white',
                         ]"
                     >
-                        <PhChartLine v-if="t === 'line'" class="size-5" />
-                        {{ t }}
+                        <component :is="chart.icon" class="size-6" />
+
+                        <div class="flex flex-col items-center">
+                            <span>{{ chart.key }}</span>
+                        </div>
                     </button>
                 </div>
             </template>
