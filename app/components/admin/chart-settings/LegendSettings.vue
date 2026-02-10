@@ -34,10 +34,9 @@ const positionOptions = [
             <Switch
                 :model-value="config.showLegend !== false"
                 @update:model-value="(val) => updateValue('showLegend', val)"
+                class="flex justify-between"
             >
-                <span class="ml-3 font-medium text-stone-700"
-                    >Display Legend</span
-                >
+                Display Legend
             </Switch>
 
             <transition

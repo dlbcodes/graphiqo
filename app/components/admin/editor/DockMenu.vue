@@ -55,7 +55,7 @@ const toggleTab = (id: string) => {
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <div class="flex-1 overflow-y-auto no-scrollbar">
                     <slot :name="modelValue"></slot>
                 </div>
             </aside>
@@ -91,13 +91,5 @@ const toggleTab = (id: string) => {
 .slide-panel-left-leave-to {
     transform: translateX(20px) scale(0.95);
     opacity: 0;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #e5e4e2;
-    border-radius: 10px;
 }
 </style>

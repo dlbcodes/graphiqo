@@ -16,7 +16,7 @@ const props = withDefaults(
         variant: "primary",
         size: "base",
         loading: false,
-    }
+    },
 );
 
 const emit = defineEmits<{
@@ -29,10 +29,13 @@ const emit = defineEmits<{
         :class="
             cn(
                 'relative inline-flex items-center cursor-pointer text-sm',
-                props.class
+                props.class,
             )
         "
     >
+        <span class="flex items-center font-medium text-stone-700">
+            <slot></slot>
+        </span>
         <div class="relative">
             <input
                 type="checkbox"
@@ -43,7 +46,7 @@ const emit = defineEmits<{
                 @input="
                     emit(
                         'update:modelValue',
-                        ($event.target as HTMLInputElement).checked
+                        ($event.target as HTMLInputElement).checked,
                     )
                 "
             />
@@ -51,8 +54,5 @@ const emit = defineEmits<{
                 class="w-11 h-6 bg-[rgba(0,0,0,0.08)] peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-gray-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:border after:border-stone-700 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"
             ></div>
         </div>
-        <span class="flex items-center text-stone-950">
-            <slot></slot>
-        </span>
     </label>
 </template>

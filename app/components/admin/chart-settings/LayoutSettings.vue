@@ -35,19 +35,17 @@ const precisionOptions = [
                 <Switch
                     :model-value="config.smooth"
                     @update:model-value="(val) => updateValue('smooth', val)"
+                    class="flex justify-between"
                 >
-                    <span class="ml-3 font-medium text-stone-700"
-                        >Smooth Curves</span
-                    >
+                    Smooth Curves
                 </Switch>
 
                 <Switch
                     :model-value="config.area"
                     @update:model-value="(val) => updateValue('area', val)"
+                    class="flex justify-between"
                 >
-                    <span class="ml-3 font-medium text-stone-700"
-                        >Fill Background</span
-                    >
+                    Fill Background
                 </Switch>
             </div>
 
@@ -57,10 +55,9 @@ const precisionOptions = [
                 <Switch
                     :model-value="config.stack"
                     @update:model-value="(val) => updateValue('stack', val)"
+                    class="flex justify-between"
                 >
-                    <span class="ml-3 font-medium text-stone-700"
-                        >Stack Series</span
-                    >
+                    Stack Series
                 </Switch>
 
                 <Switch
@@ -68,10 +65,9 @@ const precisionOptions = [
                     @update:model-value="
                         (val) => updateValue('horizontal', val)
                     "
+                    class="flex justify-between"
                 >
-                    <span class="ml-3 font-medium text-stone-700"
-                        >Horizontal Layout</span
-                    >
+                    Horizontal Layout
                 </Switch>
             </div>
 

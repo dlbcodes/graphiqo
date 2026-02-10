@@ -25,7 +25,7 @@ const updateBrandLink = (brandId: string) => {
 </script>
 
 <template>
-    <div class="bg-white p-2 rounded-3xl overflow-y-auto custom-scrollbar">
+    <div class="bg-white p-2 rounded-3xl overflow-y-auto no-scrollbar">
         <ColorSelector
             :model-value="modelValue"
             @update:model-value="
@@ -83,13 +83,3 @@ const updateBrandLink = (brandId: string) => {
         />
     </div>
 </template>
-
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 10px;
-}
-</style>

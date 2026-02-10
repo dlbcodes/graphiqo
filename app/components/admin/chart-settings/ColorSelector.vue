@@ -153,7 +153,7 @@ const toggleDarkMode = () => {
                             JSON.stringify(config.palette) ===
                                 JSON.stringify(colors)
                                 ? 'border-stone-900 bg-stone-50'
-                                : 'border-stone-50 hover:border-stone-200 bg-white',
+                                : 'border-stone-100 hover:border-stone-200 bg-white',
                         ]"
                     >
                         <div class="flex -space-x-1">

@@ -83,15 +83,17 @@ const updateChart = (data: any) => {
                         :key="chart.key"
                         @click="updateChart({ type: chart.key })"
                         :class="[
-                            'aspect-square rounded-2xl border transition-all text-xs font-medium capitalize flex flex-col items-center justify-center gap-2',
+                            'p-3 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-2 group',
                             activeChart.type === chart.key
-                                ? 'border-indigo-600 bg-indigo-50/50 text-indigo-600 shadow-sm'
-                                : 'border-stone-300 hover:border-stone-200 text-stone-900 bg-white',
+                                ? 'border-stone-900 bg-stone-50'
+                                : 'border-stone-100 hover:border-stone-200 bg-white',
                         ]"
                     >
                         <component :is="chart.icon" class="size-6" />
 
-                        <div class="flex flex-col items-center">
+                        <div
+                            class="text-[10px] font-medium capitalize text-stone-500"
+                        >
                             <span>{{ chart.key }}</span>
                         </div>
                     </button>

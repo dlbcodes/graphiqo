@@ -30,17 +30,17 @@ const precisionOptions = [
             <Switch
                 :model-value="!config.hideY"
                 @update:model-value="(val) => updateValue('hideY', !val)"
+                class="flex justify-between"
             >
-                <span class="ml-3 font-medium text-stone-700">Show Y Axis</span>
+                Show Y Axis
             </Switch>
 
             <Switch
                 :model-value="config.showGrid"
                 @update:model-value="(val) => updateValue('showGrid', val)"
+                class="flex justify-between"
             >
-                <span class="ml-3 font-medium text-stone-700"
-                    >Show Grid Lines</span
-                >
+                Show Grid Lines
             </Switch>
         </div>
     </Disclosure>

@@ -24,17 +24,17 @@ const updateValue = (key: string, val: any) => {
             <Switch
                 :model-value="!config.hideX"
                 @update:model-value="(val) => updateValue('hideX', !val)"
+                class="flex justify-between"
             >
-                <span class="ml-3 font-medium text-stone-700">Show X Axis</span>
+                Show X Axis
             </Switch>
 
             <Switch
                 :model-value="config.horizontal"
                 @update:model-value="(val) => updateValue('horizontal', val)"
+                class="flex justify-between"
             >
-                <span class="ml-3 font-medium text-stone-700"
-                    >Swap to Horizontal</span
-                >
+                Swap to Horizontal
             </Switch>
         </div>
     </Disclosure>
