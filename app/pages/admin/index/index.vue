@@ -41,6 +41,7 @@ const handleCreate = async () => {
                     {{ isCreating ? "Creating..." : "+ New" }}
                 </button>
             </div>
+            <AvatarDropdown />
         </div>
 
         <div v-if="store.loading" class="text-center py-10">

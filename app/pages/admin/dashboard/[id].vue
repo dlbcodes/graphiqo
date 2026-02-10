@@ -77,26 +77,12 @@ const updateChart = (data: any) => {
             </template>
 
             <template #type>
-                <div v-if="activeChart" class="p-2 grid grid-cols-3 gap-2">
-                    <button
-                        v-for="chart in CHART_TYPES"
-                        :key="chart.key"
-                        @click="updateChart({ type: chart.key })"
-                        :class="[
-                            'p-3 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-2 group',
-                            activeChart.type === chart.key
-                                ? 'border-stone-900 bg-stone-50'
-                                : 'border-stone-100 hover:border-stone-200 bg-white',
-                        ]"
-                    >
-                        <component :is="chart.icon" class="size-6" />
-
-                        <div
-                            class="text-[10px] font-medium capitalize text-stone-500"
-                        >
-                            <span>{{ chart.key }}</span>
-                        </div>
-                    </button>
+                <div v-if="activeChart" class="p-0">
+                    <ChartType
+                        v-model="activeChart.config"
+                        :active-chart="activeChart"
+                        @update-type="updateChart"
+                    />
                 </div>
             </template>
 

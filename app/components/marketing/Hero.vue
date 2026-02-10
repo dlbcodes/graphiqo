@@ -34,35 +34,21 @@ const submit = () => {
             class="flex flex-col justify-between items-center text-center gap-y-4"
         >
             <h1
-                class="z-10 text-black font-[700] text-center tracking-[-0.125rem] order-0 min-w-auto max-w-[760px] mt-4 mb-6 text-[60px] leading-[72px] relative"
+                class="text-center text-5xl tracking-tighter md:text-6xl lg:text-7xl font-bold text-stone-950 dark:text-dark-100"
             >
-                <span class="flex items-center justify-center tracking-tighter">
-                    Your links
-                    <img
-                        :src="LinkIcon"
-                        alt=""
-                        class="size-12 md:size-20 shrink-0"
-                    />
-                </span>
-                <span class="flex items-center justify-center tracking-tighter">
-                    told as stories
-                    <img
-                        :src="PlayIcon"
-                        alt=""
-                        class="size-12 md:size-20 shrink-0"
-                    />
-                </span>
+                Create stunning <br />
+                charts in seconds.
             </h1>
             <p class="text-balance text-stone-600 dark:text-dark-400">
-                Liqo is a link-in-bio tool that lets you share links through
-                videos and images, just like stories.
+                No clutter. No complexity. Just powerful, instant chart creation
+                that makes you look like a data genius.
             </p>
         </div>
         <!-- End Title -->
 
         <div class="flex items-center gap-x-2">
-            <Button to="/register" class="w-fit rounded-4xl" size="xl">
-                Create your Liqo
+            <Button to="/waitlist" class="w-fit rounded-4xl" size="xl">
+                Join waitlist!
                 <AnimatedArrow />
             </Button>
         </div>
