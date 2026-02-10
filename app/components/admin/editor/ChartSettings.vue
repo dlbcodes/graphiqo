@@ -25,17 +25,13 @@ const updateBrandLink = (brandId: string) => {
 </script>
 
 <template>
-    <div
-        class="space-y-6 bg-white p-6 rounded-3xl overflow-y-auto custom-scrollbar"
-    >
+    <div class="bg-white p-2 rounded-3xl overflow-y-auto custom-scrollbar">
         <ColorSelector
             :model-value="modelValue"
             @update:model-value="
                 (newValue) => emit('update:modelValue', newValue)
             "
         />
-
-        <hr class="border-gray-50" />
 
         <GoalSettings
             :model-value="modelValue"
@@ -44,7 +40,21 @@ const updateBrandLink = (brandId: string) => {
             "
         />
 
-        <section class="grid grid-cols-2 gap-6">
+        <TextSettings
+            :model-value="modelValue"
+            @update:model-value="
+                (newValue) => emit('update:modelValue', newValue)
+            "
+        />
+
+        <LayoutSettings
+            :model-value="modelValue"
+            @update:model-value="
+                (newValue) => emit('update:modelValue', newValue)
+            "
+        />
+
+        <section class="grid grid-cols-2 gap-6 pt-6">
             <div class="space-y-3">
                 <h4
                     class="text-[10px] font-black text-gray-400 uppercase tracking-widest"

@@ -31,7 +31,7 @@ const toggleTab = (id: string) => {
         <Transition name="slide-panel-left">
             <aside
                 v-if="modelValue"
-                class="ml-4 w-[280px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden pointer-events-auto"
+                class="ml-4 w-[300px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden pointer-events-auto"
             >
                 <div
                     class="py-4 px-4 border-b border-stone-100 flex justify-between items-center shrink-0"

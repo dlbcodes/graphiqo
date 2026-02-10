@@ -42,7 +42,7 @@ const internalValue = computed({
 const filteredOptions = computed(() => {
     if (!props.searchable || !query.value.trim()) return props.options;
     return props.options.filter((opt) =>
-        opt.label.toLowerCase().includes(query.value.toLowerCase())
+        opt.label.toLowerCase().includes(query.value.toLowerCase()),
     );
 });
 
@@ -59,7 +59,7 @@ watch(
     (newVal) => {
         console.log("ModelValue changed to:", newVal);
         query.value = "";
-    }
+    },
 );
 
 // Debug on mount
@@ -83,7 +83,8 @@ onMounted(() => {
                         cn(
                             inputVariants({
                                 variant: 'primary',
-                            })
+                                size: 'sm',
+                            }),
                         )
                     "
                 >
@@ -120,7 +121,7 @@ onMounted(() => {
                                     variant: 'primary',
                                     size: 'full',
                                 }),
-                                'absolute w-full z-50 mt-0.5'
+                                'absolute w-full z-50 mt-0.5',
                             )
                         "
                     >

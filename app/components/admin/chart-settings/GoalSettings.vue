@@ -20,24 +20,18 @@ const updateValue = (key: string, val: any) => {
 </script>
 
 <template>
-    <section class="bg-rose-50 p-4 rounded-2xl border border-rose-100">
-        <header class="flex items-center gap-2 mb-3">
-            <PhTarget class="size-3 text-rose-400" weight="fill" />
-            <h4
-                class="text-[10px] font-black text-rose-400 uppercase tracking-widest"
+    <Disclosure label="Goal / Target Line">
+        <div class="grid grid-cols-2 gap-x-3">
+            <Field
+                id="goal-number"
+                class="flex-1"
+                label="Value"
+                placeholder="100"
+                type="number"
             >
-                Goal / Target Line
-            </h4>
-        </header>
-
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="text-[9px] text-rose-600 font-bold mb-1 block"
-                    >Value</label
-                >
-                <input
-                    type="number"
-                    :value="config.goalValue"
+                <Input
+                    size="sm"
+                    :model-value="config.goalValue"
                     @input="
                         (e) =>
                             updateValue(
@@ -45,16 +39,19 @@ const updateValue = (key: string, val: any) => {
                                 Number((e.target as HTMLInputElement).value),
                             )
                     "
-                    class="w-full text-xs p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-rose-500 placeholder:text-rose-200 text-rose-900"
-                    placeholder="e.g. 100"
                 />
-            </div>
-            <div>
-                <label class="text-[9px] text-rose-600 font-bold mb-1 block"
-                    >Label</label
-                >
-                <input
-                    :value="config.goalLabel"
+            </Field>
+
+            <Field
+                id="goal-label"
+                class="flex-1"
+                label="Label"
+                placeholder="Target"
+                type="text"
+            >
+                <Input
+                    size="sm"
+                    :model-value="config.goalLabel"
                     @input="
                         (e) =>
                             updateValue(
@@ -62,10 +59,8 @@ const updateValue = (key: string, val: any) => {
                                 (e.target as HTMLInputElement).value,
                             )
                     "
-                    class="w-full text-xs p-2 bg-white rounded-lg border-none focus:ring-2 focus:ring-rose-500 placeholder:text-rose-200 text-rose-900"
-                    placeholder="Target"
                 />
-            </div>
+            </Field>
         </div>
-    </section>
+    </Disclosure>
 </template>
