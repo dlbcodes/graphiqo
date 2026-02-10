@@ -28,7 +28,7 @@ export const useChartFormatter = () => {
 
 		// BASE SHARED SETTINGS (For all chart types)
 		const baseSettings = {
-			backgroundColor: isDark ? "#111827" : "transparent",
+			backgroundColor: isDark ? "#0f0f0f" : "transparent",
 			color: finalPalette,
 			textStyle: {
 				color: finalTextColor,

@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { CHART_PALETTES } from "@/utils/chartConstants";
-import { PhSparkle, PhPaintBrushBroad, PhPalette } from "@phosphor-icons/vue";
+import {
+    PhSparkle,
+    PhPaintBrushBroad,
+    PhPalette,
+    PhMoon,
+    PhSun,
+} from "@phosphor-icons/vue";
 
 const props = defineProps<{
     modelValue: any;
@@ -30,6 +36,14 @@ const selectPalette = (colors: string[]) => {
         palette: colors,
     };
 };
+
+// Helper for the dark mode toggle
+const toggleDarkMode = () => {
+    config.value = {
+        ...config.value,
+        darkMode: !config.value.darkMode,
+    };
+};
 </script>
 
 <template>
@@ -39,6 +53,40 @@ const selectPalette = (colors: string[]) => {
         </template>
 
         <div class="space-y-6">
+            <section>
+                <header class="flex items-center gap-2 mb-3">
+                    <component
+                        :is="config.darkMode ? PhMoon : PhSun"
+                        class="size-3 text-amber-500"
+                        :weight="config.darkMode ? 'fill' : 'bold'"
+                    />
+                    <h4
+                        class="text-[10px] font-black text-stone-400 uppercase tracking-widest"
+                    >
+                        Display Mode
+                    </h4>
+                </header>
+
+                <button
+                    @click="toggleDarkMode"
+                    :class="[
+                        'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition-all font-bold text-xs',
+                        config.darkMode
+                            ? 'bg-stone-900 border-stone-900 text-white shadow-inner'
+                            : 'bg-white border-stone-100 text-stone-600 hover:border-stone-200 shadow-sm',
+                    ]"
+                >
+                    <span v-if="config.darkMode" class="flex items-center gap-2"
+                        >🌙 Dark Mode</span
+                    >
+                    <span v-else class="flex items-center gap-2"
+                        >☀️ Light Mode</span
+                    >
+                </button>
+            </section>
+
+            <hr class="border-stone-100" />
+
             <section v-if="brandStore.brands.length > 0">
                 <header class="flex items-center gap-2 mb-3">
                     <PhSparkle class="size-3 text-indigo-500" weight="fill" />
