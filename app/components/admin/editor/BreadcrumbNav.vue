@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { PhCaretDown, PhSquaresFour, PhChartBar } from "@phosphor-icons/vue";
+import { computed } from "vue";
+import {
+    PhCaretDown,
+    PhSquaresFour,
+    PhChartBar,
+    PhHouse,
+} from "@phosphor-icons/vue";
+import { CHART_TYPES } from "@/utils/chartTypes";
 
 const props = defineProps<{
     dashboards: any[];
@@ -15,67 +22,70 @@ const emit = defineEmits(["changeDashboard", "changeChart", "goBack"]);
 
 const activeIcon = computed(() => {
     const type = CHART_TYPES.find((t) => t.key === props.activeChartType);
-    return type ? type.icon : PhChartBar; // Fallback to Bar if not found
+    return type ? type.icon : PhChartBar;
 });
+
+// Map dashboards for the Dropdown component
+const dashboardOptions = computed(() =>
+    props.dashboards.map((db) => ({
+        label: db.title,
+        icon: PhSquaresFour,
+        action: () => emit("changeDashboard", db.id),
+    })),
+);
+
+// Map charts for the Dropdown component
+const chartOptions = computed(() =>
+    props.charts.map((c) => {
+        const typeInfo = CHART_TYPES.find((t) => t.key === c.type);
+        return {
+            label: c.name,
+            icon: typeInfo ? typeInfo.icon : PhChartBar,
+            action: () => emit("changeChart", c.id),
+        };
+    }),
+);
 </script>
 
 <template>
-    <nav class="flex items-center text-sm">
-        <span class="px-2 text-stone-900 font-medium">Dashboards</span>
+    <nav class="flex items-center text-sm font-medium">
+        <Button to="/admin" variant="icon" size="icon">
+            <PhHouse class="size-5 shrink-0" />
+        </Button>
 
         <span class="text-stone-300 mx-1">/</span>
 
-        <div class="relative group">
-            <button
-                class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-stone-200 transition text-stone-900 font-medium whitespace-nowrap"
-            >
-                <PhSquaresFour class="size-5 shrink-0" />
+        <div class="flex items-center group">
+            <span class="pl-2 pr-1 text-stone-900 capitalize">
                 {{ currentDashboardName || "Loading..." }}
-                <PhCaretDown class="size-3 text-stone-400" />
-            </button>
-            <select
-                :value="currentDashboardId"
-                @change="
-                    (e) =>
-                        emit(
-                            'changeDashboard',
-                            (e.target as HTMLSelectElement).value,
-                        )
-                "
-                class="absolute inset-0 opacity-0 cursor-pointer"
-            >
-                <option v-for="db in dashboards" :key="db.id" :value="db.id">
-                    {{ db.title }}
-                </option>
-            </select>
+            </span>
+
+            <Dropdown :options="dashboardOptions" class="inline-flex">
+                <button
+                    class="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-900"
+                >
+                    <PhCaretDown class="size-3" weight="bold" />
+                </button>
+            </Dropdown>
         </div>
 
         <span class="text-stone-300 mx-1">/</span>
 
-        <div class="relative group">
-            <button
-                class="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-stone-900 transition-colors hover:bg-indigo-100 whitespace-nowrap"
-            >
-                <component :is="activeIcon" class="size-5 shrink-0" />
-                {{ activeChartName || "Select Chart" }}
-                <PhCaretDown class="size-3 opacity-50" />
-            </button>
+        <div class="flex items-center group">
+            <div class="flex items-center gap-2 pl-2 pr-1 text-stone-900">
+                <component :is="activeIcon" class="size-4 text-stone-500" />
+                <span class="capitalize">{{
+                    activeChartName || "Select Chart"
+                }}</span>
+            </div>
 
-            <select
-                :value="activeChartId"
-                @change="
-                    (e) =>
-                        emit(
-                            'changeChart',
-                            (e.target as HTMLSelectElement).value,
-                        )
-                "
-                class="absolute inset-0 opacity-0 cursor-pointer"
-            >
-                <option v-for="c in charts" :key="c.id" :value="c.id">
-                    {{ c.name }}
-                </option>
-            </select>
+            <Dropdown :options="chartOptions" class="inline-flex">
+                <button
+                    class="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-900"
+                >
+                    <PhCaretDown class="size-3" weight="bold" />
+                </button>
+            </Dropdown>
         </div>
     </nav>
 </template>

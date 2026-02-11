@@ -4,6 +4,7 @@ import {
     PhShareNetwork,
     PhChartLine,
     PhHouse,
+    PhList,
     PhDownloadSimple,
     PhPresentation,
     PhQuestion,
@@ -107,7 +108,7 @@ const updateChart = (data: any) => {
             >
                 <div class="flex items-center gap-3">
                     <Button to="/admin" variant="icon" size="icon">
-                        <PhHouse class="size-5 shrink-0" />
+                        <PhList class="size-5 shrink-0" />
                     </Button>
 
                     <BreadcrumbNav

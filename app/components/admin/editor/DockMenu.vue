@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue"; // [!code ++]
+import { onClickOutside } from "@vueuse/core"; // [!code ++]
 import {
     PhTable,
     PhChartBar,
@@ -13,6 +15,20 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["update:modelValue"]);
+
+// Refs for click-outside detection
+const panelRef = ref(null); // [!code ++]
+const navRef = ref(null); // [!code ++]
+
+// Close the panel if clicking outside the aside AND the nav dock
+onClickOutside(
+    panelRef,
+    () => {
+        // [!code ++]
+        if (props.modelValue) emit("update:modelValue", null); // [!code ++]
+    },
+    { ignore: [navRef] },
+); // [!code ++]
 
 const tabs = [
     { id: "data", icon: PhTable, label: "Data" },
@@ -33,23 +49,23 @@ const toggleTab = (id: string) => {
         <Transition name="slide-fade">
             <aside
                 v-if="modelValue"
-                class="w-84 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] rounded-[2rem] flex flex-col overflow-hidden pointer-events-auto border border-stone-200/60"
+                ref="panelRef"
+                class="w-84 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] rounded-4xl flex flex-col overflow-hidden pointer-events-auto border border-stone-200/60"
             >
                 <div
                     class="h-16 px-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/40 shrink-0"
                 >
                     <div class="flex flex-col">
                         <span
-                            class="text-[10px] uppercase tracking-widest font-black text-stone-400"
+                            class="text-[10px] uppercase tracking-widest font-semibold text-stone-400"
                             >Editor</span
                         >
                         <h3
-                            class="text-sm font-bold text-stone-900 capitalize leading-none"
+                            class="text-sm font-semibold text-stone-900 capitalize leading-none"
                         >
                             {{ modelValue }}
                         </h3>
                     </div>
-
                     <button
                         @click="emit('update:modelValue', null)"
                         :class="
@@ -81,7 +97,8 @@ const toggleTab = (id: string) => {
         </Transition>
 
         <nav
-            class="self-start flex flex-col gap-y-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.06),inset_0_0_0_1px_rgba(0,0,0,0.08)] rounded-[1.5rem] bg-white p-1.5 pointer-events-auto border border-white"
+            ref="navRef"
+            class="self-start flex flex-col gap-y-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.06),inset_0_0_0_1px_rgba(0,0,0,0.08)] rounded-3xl bg-white p-1.5 pointer-events-auto border border-white"
         >
             <button
                 v-for="tab in tabs"
