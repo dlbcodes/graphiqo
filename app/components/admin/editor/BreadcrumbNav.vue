@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import {
     PhCaretDown,
     PhSquaresFour,
@@ -8,40 +7,35 @@ import {
 } from "@phosphor-icons/vue";
 import { CHART_TYPES } from "@/utils/chartTypes";
 
-const props = defineProps<{
-    dashboards: any[];
-    currentDashboardName?: string;
-    currentDashboardId?: string;
-    charts: any[];
-    activeChartName?: string;
-    activeChartId?: string;
-    activeChartType?: string;
-}>();
+// No props needed! We talk to the store directly.
+const store = useDashboardStore();
 
-const emit = defineEmits(["changeDashboard", "changeChart", "goBack"]);
+const activeChart = computed(() => {
+    return store.currentDashboard?.charts?.find(
+        (c) => c.id === store.activeChartId,
+    );
+});
 
 const activeIcon = computed(() => {
-    const type = CHART_TYPES.find((t) => t.key === props.activeChartType);
+    const type = CHART_TYPES.find((t) => t.key === activeChart.value?.type);
     return type ? type.icon : PhChartBar;
 });
 
-// Map dashboards for the Dropdown component
 const dashboardOptions = computed(() =>
-    props.dashboards.map((db) => ({
+    store.dashboards.map((db) => ({
         label: db.title,
         icon: PhSquaresFour,
-        action: () => emit("changeDashboard", db.id),
+        action: () => navigateTo(`/admin/dashboard/${db.id}`),
     })),
 );
 
-// Map charts for the Dropdown component
 const chartOptions = computed(() =>
-    props.charts.map((c) => {
+    (store.currentDashboard?.charts || []).map((c) => {
         const typeInfo = CHART_TYPES.find((t) => t.key === c.type);
         return {
             label: c.name,
             icon: typeInfo ? typeInfo.icon : PhChartBar,
-            action: () => emit("changeChart", c.id),
+            action: () => (store.activeChartId = c.id),
         };
     }),
 );
@@ -61,12 +55,11 @@ const chartOptions = computed(() =>
             <span
                 class="pl-2 pr-1 text-stone-900 capitalize truncate max-w-[150px]"
             >
-                {{ currentDashboardName || "Loading..." }}
+                {{ store.currentDashboard?.title || "Loading..." }}
             </span>
-
             <Dropdown :options="dashboardOptions" class="inline-flex">
                 <button
-                    class="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-900 flex items-center justify-center"
+                    class="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400"
                 >
                     <PhCaretDown class="size-3" weight="bold" />
                 </button>
@@ -81,14 +74,13 @@ const chartOptions = computed(() =>
                     :is="activeIcon"
                     class="size-4 text-stone-500 shrink-0"
                 />
-                <span class="capitalize truncate max-w-[200px]">{{
-                    activeChartName || "Select Chart"
-                }}</span>
+                <span class="capitalize truncate max-w-[200px]">
+                    {{ activeChart?.name || "Select Chart" }}
+                </span>
             </div>
-
             <Dropdown :options="chartOptions" class="inline-flex">
                 <button
-                    class="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400 hover:text-stone-900 flex items-center justify-center"
+                    class="p-1.5 rounded-lg hover:bg-stone-100 transition-colors text-stone-400"
                 >
                     <PhCaretDown class="size-3" weight="bold" />
                 </button>

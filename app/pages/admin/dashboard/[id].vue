@@ -5,6 +5,7 @@ import {
     PhPresentation,
     PhQuestion,
 } from "@phosphor-icons/vue";
+import { useDebounceFn } from "@vueuse/core";
 
 definePageMeta({ middleware: "admin" });
 
@@ -44,6 +45,43 @@ const updateChart = (payload: any) => {
         store.updateChartData(activeChart.value.id, payload);
     }
 };
+
+// 1. Keep track of the last version we saved to the DB
+const lastSavedState = ref("");
+const isSaving = ref(false);
+const lastSaved = ref<Date | null>(null);
+
+// 2. The actual API call logic (Debounced)
+const debouncedSave = useDebounceFn(async (id: string, data: any) => {
+    const currentStateString = JSON.stringify(data);
+    if (currentStateString === lastSavedState.value) return;
+
+    isSaving.value = true; // Start indicator
+    try {
+        await store.updateChartData(id, data);
+        lastSavedState.value = currentStateString;
+        lastSaved.value = new Date(); // Update timestamp
+    } finally {
+        // Smooth transition back to "Saved"
+        setTimeout(() => {
+            isSaving.value = false;
+        }, 800);
+    }
+}, 2000);
+
+// 3. Watch the active chart
+watch(
+    () => [activeChart.value?.rawData, activeChart.value?.config],
+    (newValues) => {
+        if (!activeChart.value?.id) return;
+
+        const [rawData, config] = newValues;
+
+        // Trigger the debounced function
+        debouncedSave(activeChart.value.id, { rawData, config });
+    },
+    { deep: true },
+);
 </script>
 
 <template>
@@ -88,40 +126,7 @@ const updateChart = (payload: any) => {
         <main
             class="flex-1 flex flex-col min-w-0 transition-all duration-500 ease-in-out"
         >
-            <header
-                class="h-18 px-6 flex items-center justify-between shrink-0"
-            >
-                <div class="flex items-center gap-3">
-                    <Button to="/admin" variant="icon" size="icon">
-                        <PhList class="size-5 shrink-0" />
-                    </Button>
-
-                    <BreadcrumbNav
-                        :dashboards="store.dashboards"
-                        :current-dashboard-name="store.currentDashboard?.title"
-                        :charts="store.currentDashboard?.charts || []"
-                        :active-chart-id="store.activeChartId"
-                        :active-chart-name="activeChart?.name"
-                        :active-chart-type="activeChart?.type"
-                        @go-back="navigateTo('/admin')"
-                        @change-dashboard="
-                            (id) => navigateTo(`/admin/dashboard/${id}`)
-                        "
-                        @change-chart="(id) => (store.activeChartId = id)"
-                    />
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <Button variant="secondary">
-                        <PhPresentation class="size-5 shrink-0" />
-                        Presentation
-                    </Button>
-                    <Button>
-                        <PhShareNetwork class="size-5 shrink-0" />
-                        Share
-                    </Button>
-                </div>
-            </header>
+            <EditorHeader :is-saving="isSaving" :last-saved="lastSaved" />
 
             <div
                 class="flex-1 px-12 pb-12 flex items-center justify-center min-h-0"
