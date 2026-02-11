@@ -27,18 +27,28 @@ const toggleTab = (id: string) => {
 </script>
 
 <template>
-    <div class="fixed right-8 top-14 bottom-8 z-60 flex pointer-events-none">
-        <Transition name="slide-panel-left">
+    <div
+        class="fixed right-6 top-20 bottom-8 z-50 flex items-stretch gap-4 pointer-events-none"
+    >
+        <Transition name="slide-fade">
             <aside
                 v-if="modelValue"
-                class="ml-4 w-[300px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden pointer-events-auto"
+                class="w-84 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] rounded-[2rem] flex flex-col overflow-hidden pointer-events-auto border border-stone-200/60"
             >
                 <div
-                    class="py-4 px-4 border-b border-stone-100 flex justify-between items-center shrink-0"
+                    class="h-16 px-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/40 shrink-0"
                 >
-                    <h3 class="text-base font-medium text-stone-950 capitalize">
-                        {{ modelValue }} Editor
-                    </h3>
+                    <div class="flex flex-col">
+                        <span
+                            class="text-[10px] uppercase tracking-widest font-black text-stone-400"
+                            >Editor</span
+                        >
+                        <h3
+                            class="text-sm font-bold text-stone-900 capitalize leading-none"
+                        >
+                            {{ modelValue }}
+                        </h3>
+                    </div>
 
                     <button
                         @click="emit('update:modelValue', null)"
@@ -48,48 +58,76 @@ const toggleTab = (id: string) => {
                                     variant: 'icon',
                                     size: 'icon',
                                 }),
+                                'hover:bg-stone-200/50 rounded-full transition-colors',
                             )
                         "
                     >
-                        <PhX class="size-4 shrink-0" />
+                        <PhX class="size-4 text-stone-500" />
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto no-scrollbar">
+                <div class="flex-1 overflow-y-auto no-scrollbar p-1">
                     <slot :name="modelValue"></slot>
+                </div>
+
+                <div
+                    class="h-10 border-t border-stone-50 flex items-center justify-center bg-stone-50/20 shrink-0"
+                >
+                    <div class="size-1 rounded-full bg-stone-200 mx-1"></div>
+                    <div class="size-1 rounded-full bg-stone-200 mx-1"></div>
+                    <div class="size-1 rounded-full bg-stone-200 mx-1"></div>
                 </div>
             </aside>
         </Transition>
-        <div
-            class="self-center flex flex-col gap-y-2 shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)] rounded-2xl bg-white p-1 pointer-events-auto"
+
+        <nav
+            class="self-start flex flex-col gap-y-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.06),inset_0_0_0_1px_rgba(0,0,0,0.08)] rounded-[1.5rem] bg-white p-1.5 pointer-events-auto border border-white"
         >
-            <div
+            <button
                 v-for="tab in tabs"
                 :key="tab.id"
                 @click="toggleTab(tab.id)"
                 :class="[
-                    'flex flex-col justify-center items-center size-12 shrink-0 rounded-xl cursor-pointer transition-colors ease-in duration-150',
+                    'relative flex flex-col justify-center items-center size-14 shrink-0 rounded-2xl transition-all duration-300 group',
                     modelValue === tab.id
-                        ? 'bg-stone-100 text-indigo-600'
-                        : 'text-stone-900 hover:bg-stone-100',
+                        ? 'bg-stone-900 text-white shadow-lg'
+                        : 'text-stone-500 hover:bg-stone-100 hover:text-stone-900',
                 ]"
             >
-                <component :is="tab.icon" class="size-6" />
-                <span class="text-[10px] font-medium">{{ tab.label }}</span>
-            </div>
-        </div>
+                <component
+                    :is="tab.icon"
+                    class="size-5 mb-1"
+                    :weight="modelValue === tab.id ? 'fill' : 'regular'"
+                />
+                <span class="text-[9px] font-bold uppercase tracking-tighter">{{
+                    tab.label
+                }}</span>
+            </button>
+        </nav>
     </div>
 </template>
 
 <style scoped>
-/* Flip the entry direction: slides from right to left */
-.slide-panel-left-enter-active,
-.slide-panel-left-leave-active {
+/* Smooth slide and scale for a premium feel */
+.slide-fade-enter-active {
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.slide-panel-left-enter-from,
-.slide-panel-left-leave-to {
-    transform: translateX(20px) scale(0.95);
+.slide-fade-leave-active {
+    transition: all 0.4s cubic-bezier(0.7, 0, 0.84, 0);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    transform: translateX(40px) scale(0.95);
     opacity: 0;
+    filter: blur(8px);
+}
+
+/* Ensure no scrollbar shows but scrolling still works */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 </style>
