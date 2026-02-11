@@ -1,5 +1,15 @@
 <script setup lang="ts">
+import {
+    ref,
+    shallowRef,
+    computed,
+    watch,
+    onMounted,
+    onUnmounted,
+    nextTick,
+} from "vue";
 import * as echarts from "echarts";
+import ChartLegend from "./ChartLegend.vue";
 
 const props = defineProps<{
     options: any;
@@ -10,6 +20,7 @@ const emit = defineEmits(["updateMetadata"]);
 
 const chartRef = ref<HTMLElement | null>(null);
 const chartInstance = shallowRef<echarts.ECharts | null>(null);
+const hiddenSeries = ref(new Set<string>());
 
 const config = computed(() => props.chartData?.config || {});
 const isDark = computed(() => config.value.darkMode);
@@ -26,7 +37,32 @@ const updateConfig = (key: string, value: string) => {
     emit("updateMetadata", { config: { ...config.value, [key]: value } });
 };
 
-// --- ECHARTS LOGIC ---
+// --- ECHARTS BRIDGE METHODS ---
+const handleToggle = (name: string) => {
+    if (!chartInstance.value) return;
+    chartInstance.value.dispatchAction({
+        type: "legendToggleSelect",
+        name: name,
+    });
+
+    if (hiddenSeries.value.has(name)) {
+        hiddenSeries.value.delete(name);
+    } else {
+        hiddenSeries.value.add(name);
+    }
+};
+
+const handleHighlight = (name: string) => {
+    if (!chartInstance.value || hiddenSeries.value.has(name)) return;
+    chartInstance.value.dispatchAction({ type: "highlight", seriesName: name });
+};
+
+const handleDownplay = (name: string) => {
+    if (!chartInstance.value) return;
+    chartInstance.value.dispatchAction({ type: "downplay", seriesName: name });
+};
+
+// --- ECHARTS LIFECYCLE ---
 watch(
     () => props.options,
     (newOptions) => {
@@ -84,17 +120,28 @@ onUnmounted(() => {
             />
         </div>
 
+        <ChartLegend
+            v-if="config.legend?.show !== false"
+            :chart-data="chartData"
+            :options="options"
+            :is-dark="isDark"
+            :hidden-series="hiddenSeries"
+            @toggle="handleToggle"
+            @highlight="handleHighlight"
+            @downplay="handleDownplay"
+        />
+
         <div class="flex-1 min-h-[400px] relative">
             <div ref="chartRef" class="absolute inset-0 w-full h-full"></div>
         </div>
 
         <div
-            class="flex flex-col justify-between items-start gap-y-2 shrink-0"
-            :class="isDark ? 'border-stone-800' : 'border-stone-200'"
+            class="mt-6 flex flex-col justify-between items-start gap-y-4 shrink-0 pt-4 border-t"
+            :class="isDark ? 'border-stone-800' : 'border-stone-100'"
         >
             <div class="w-full flex flex-col gap-y-1">
                 <span
-                    class="font-bold uppercase text-xs mt-1 opacity-40"
+                    class="font-bold uppercase text-[10px] opacity-40"
                     :class="isDark ? 'text-stone-400' : 'text-stone-500'"
                     >Note:</span
                 >
@@ -114,11 +161,13 @@ onUnmounted(() => {
                 ></textarea>
             </div>
 
-            <div class="flex items-center w-full text-right shrink-0">
+            <div class="flex items-center w-full shrink-0">
                 <span
-                    class="text-[8px] font-black uppercase tracking-[0.2em] opacity-40 block"
-                    >Source</span
+                    class="text-[8px] font-black uppercase tracking-[0.2em] opacity-40 block mr-2"
+                    :class="isDark ? 'text-stone-400' : 'text-stone-500'"
                 >
+                    Source
+                </span>
                 <input
                     :value="config.source"
                     @input="
@@ -129,7 +178,7 @@ onUnmounted(() => {
                             )
                     "
                     placeholder="Data source..."
-                    class="flex-1 w-full text-[10px] font-bold bg-transparent border-none focus:ring-0 p-0 text-left placeholder:text-stone-300"
+                    class="flex-1 text-[10px] font-bold bg-transparent border-none focus:ring-0 p-0 placeholder:text-stone-300"
                     :class="isDark ? 'text-indigo-400' : 'text-indigo-600'"
                 />
             </div>
@@ -138,12 +187,11 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* Focus state: give the user a tiny visual hint they are editing */
 input:focus,
 textarea:focus {
     outline: none;
 }
-/* Hide placeholders when not hovered to keep it clean */
+/* Keeps placeholders hidden until the parent group is hovered */
 .group:not(:hover) input::placeholder,
 .group:not(:hover) textarea::placeholder {
     color: transparent;

@@ -25,7 +25,7 @@ const updateBrandLink = (brandId: string) => {
 </script>
 
 <template>
-    <div class="bg-white p-2 rounded-3xl overflow-y-auto no-scrollbar">
+    <div class="bg-white p-2 rounded-3xl h-full overflow-y-auto no-scrollbar">
         <ColorSelector
             :model-value="modelValue"
             @update:model-value="
@@ -41,41 +41,6 @@ const updateBrandLink = (brandId: string) => {
         />
 
         <TextSettings
-            :model-value="modelValue"
-            @update:model-value="
-                (newValue) => emit('update:modelValue', newValue)
-            "
-        />
-
-        <LayoutSettings
-            :model-value="modelValue"
-            @update:model-value="
-                (newValue) => emit('update:modelValue', newValue)
-            "
-        />
-
-        <LegendSettings
-            :model-value="modelValue"
-            @update:model-value="
-                (newValue) => emit('update:modelValue', newValue)
-            "
-        />
-
-        <XAxisSettings
-            :model-value="modelValue"
-            @update:model-value="
-                (newValue) => emit('update:modelValue', newValue)
-            "
-        />
-
-        <YAxisSettings
-            :model-value="modelValue"
-            @update:model-value="
-                (newValue) => emit('update:modelValue', newValue)
-            "
-        />
-
-        <ComboChartSettings
             :model-value="modelValue"
             @update:model-value="
                 (newValue) => emit('update:modelValue', newValue)

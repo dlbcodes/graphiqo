@@ -60,7 +60,7 @@ const updateChart = (data: any) => {
 <template>
     <!-- bg-[#F9F8F6] -->
     <div
-        class="flex h-screen overflow-hidden relative font-sans bg-stone-50 bg-[repeating-linear-gradient(135deg,var(--color-stone-100)_0px,var(--color-stone-100)_1px,transparent_1px,transparent_20px)]"
+        class="flex max-h-screen overflow-hidden relative font-sans bg-stone-50 bg-[repeating-linear-gradient(135deg,var(--color-stone-100)_0px,var(--color-stone-100)_1px,transparent_1px,transparent_20px)]"
     >
         <div class="fixed left-8 bottom-8 z-50">
             <button
@@ -88,14 +88,14 @@ const updateChart = (data: any) => {
             </template>
 
             <template #brand>
-                <div v-if="activeChart" class="p-0">
+                <div v-if="activeChart" class="p-0 h-full">
                     <ChartSettings v-model="activeChart.config" />
                 </div>
             </template>
 
-            <template #settings>
+            <template #layout>
                 <div v-if="activeChart" class="p-2">
-                    <ChartSettings v-model="activeChart.config" />
+                    <ChartLayout v-model="activeChart.config" />
                 </div>
             </template>
         </DockMenu>

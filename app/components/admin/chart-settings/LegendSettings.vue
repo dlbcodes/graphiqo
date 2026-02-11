@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PhMegaphone } from "@phosphor-icons/vue";
+import { PhListBullets, PhHash, PhLayout } from "@phosphor-icons/vue";
 
 const props = defineProps<{
     modelValue: any;
@@ -7,58 +7,85 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:modelValue"]);
 
-const config = computed({
-    get: () => props.modelValue,
-    set: (val) => emit("update:modelValue", val),
-});
+// Available modes for the legend values
+const modes = [
+    { label: "None", value: "none" },
+    { label: "Last", value: "last" },
+    { label: "Avg", value: "avg" },
+    { label: "Sum", value: "sum" },
+] as const;
 
-const updateValue = (key: string, val: any) => {
-    config.value = { ...config.value, [key]: val };
+const updateLegend = (key: string, value: any) => {
+    const currentLegend = props.modelValue.legend || {};
+    emit("update:modelValue", {
+        ...props.modelValue,
+        legend: {
+            ...currentLegend,
+            [key]: value,
+        },
+    });
 };
-
-const positionOptions = [
-    { label: "Top", value: "top" },
-    { label: "Bottom", value: "bottom" },
-    { label: "Left Side", value: "left" },
-    { label: "Right Side", value: "right" },
-];
 </script>
 
 <template>
-    <Disclosure label="Legend Settings">
-        <template #icon>
-            <PhMegaphone class="size-4 text-stone-500" />
-        </template>
-
+    <Disclosure label="Legend">
+        <template #icon><PhListBullets class="size-4 text-stone-500" /></template>
+        
         <div class="space-y-4 pt-2">
-            <Switch
-                :model-value="config.showLegend !== false"
-                @update:model-value="(val) => updateValue('showLegend', val)"
-                class="flex justify-between"
-            >
-                Display Legend
-            </Switch>
+            <div class="flex items-center justify-between px-1">
+                <span class="text-xs font-semibold text-stone-700">Show Legend</span>
+                <Switch 
+                    :model-value="modelValue.legend?.show ?? true" 
+                    @update:model-value="(val) => updateLegend('show', val)" 
+                />
+            </div>
 
-            <transition
-                enter-active-class="transition duration-200 ease-out"
-                enter-from-class="translate-y-1 opacity-0"
-                enter-to-class="translate-y-0 opacity-100"
-                leave-active-class="transition duration-150 ease-in"
-                leave-from-class="translate-y-0 opacity-100"
-                leave-to-class="translate-y-1 opacity-0"
-            >
-                <div v-if="config.showLegend !== false" class="pt-2">
-                    <Field id="legend-position" label="Position">
-                        <Listbox
-                            :model-value="config.legendPosition || 'bottom'"
-                            :options="positionOptions"
-                            @update:model-value="
-                                (val) => updateValue('legendPosition', val)
-                            "
-                        />
-                    </Field>
+            <hr class="border-stone-50" />
+
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 px-1 text-stone-400">
+                    <PhHash class="size-3" />
+                    <span class="text-[10px] font-black uppercase tracking-widest">Display Value</span>
                 </div>
-            </transition>
+                
+                <div class="grid grid-cols-4 gap-1 bg-stone-100 p-1 rounded-xl">
+                    <button
+                        v-for="mode in modes"
+                        :key="mode.value"
+                        @click="updateLegend('valueMode', mode.value)"
+                        :class="[
+                            'py-1.5 text-[10px] font-bold rounded-lg transition-all',
+                            (modelValue.legend?.valueMode || 'none') === mode.value
+                                ? 'bg-white text-stone-900 shadow-sm'
+                                : 'text-stone-500 hover:text-stone-700'
+                        ]"
+                    >
+                        {{ mode.label }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 px-1 text-stone-400">
+                    <PhLayout class="size-3" />
+                    <span class="text-[10px] font-black uppercase tracking-widest">Position</span>
+                </div>
+                <div class="flex gap-2 bg-stone-50 p-2 rounded-xl border border-stone-100">
+                    <button 
+                        v-for="pos in ['top', 'bottom']" 
+                        :key="pos"
+                        @click="updateLegend('position', pos)"
+                        :class="[
+                            'flex-1 py-1 text-[10px] font-black uppercase rounded-md transition-all border',
+                            (modelValue.legend?.position || 'top') === pos
+                                ? 'bg-stone-900 border-stone-900 text-white'
+                                : 'bg-white border-stone-200 text-stone-400'
+                        ]"
+                    >
+                        {{ pos }}
+                    </button>
+                </div>
+            </div>
         </div>
     </Disclosure>
 </template>

@@ -47,7 +47,7 @@ const toggleDarkMode = () => {
 </script>
 
 <template>
-    <Disclosure label="Colors & Branding">
+    <Disclosure :defaultOpen="true" label="Colors & Branding">
         <template #icon>
             <PhPalette class="size-4 text-stone-500" />
         </template>

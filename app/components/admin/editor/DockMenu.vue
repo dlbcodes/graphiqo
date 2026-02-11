@@ -34,7 +34,7 @@ const tabs = [
     { id: "data", icon: PhTable, label: "Data" },
     { id: "type", icon: PhChartBar, label: "Chart" },
     { id: "brand", icon: PhPalette, label: "Brand" },
-    { id: "settings", icon: PhGear, label: "Config" },
+    { id: "layout", icon: PhGear, label: "Layout" },
 ] as const;
 
 const toggleTab = (id: string) => {
@@ -50,7 +50,7 @@ const toggleTab = (id: string) => {
             <aside
                 v-if="modelValue"
                 ref="panelRef"
-                class="w-84 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] rounded-4xl flex flex-col overflow-hidden pointer-events-auto border border-stone-200/60"
+                class="w-84 h-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] rounded-4xl flex flex-col overflow-hidden pointer-events-auto border border-stone-200/60"
             >
                 <div
                     class="h-16 px-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/40 shrink-0"

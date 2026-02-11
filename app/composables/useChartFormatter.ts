@@ -1,6 +1,49 @@
 import { CHART_PALETTES } from "@/utils/chartConstants";
 
 export const useChartFormatter = () => {
+	// --- HELPER FOR LEGEND MATH ---
+	const getLegendValue = (seriesName: string, rawData: any[], config: any, mode: string) => {
+		const seriesKey = Object.keys(config).find(k => config[k] === seriesName)
+			|| Object.keys(rawData[0] || {}).find(k => k.replace("val", "Series ") === seriesName);
+
+		const fallback = { val: '—', diff: 0, diffPct: '', rawVal: 0 };
+		if (!seriesKey || !rawData.length) return fallback;
+
+		const values = rawData.map(row => Number(row[seriesKey])).filter(v => !isNaN(v));
+		if (values.length === 0) return fallback;
+
+		let result = 0;
+		let diffPct = '';
+		let diff = 0;
+
+		switch (mode) {
+			case 'last':
+				result = values[values.length - 1];
+				if (values.length > 1) {
+					const prev = values[values.length - 2];
+					diff = result - prev;
+					// Safe division
+					const pct = prev !== 0 ? ((result - prev) / Math.abs(prev)) * 100 : 0;
+					diffPct = `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`;
+				}
+				break;
+			case 'sum':
+				result = values.reduce((a, b) => a + b, 0);
+				break;
+			case 'avg':
+				result = values.reduce((a, b) => a + b, 0) / values.length;
+				break;
+			default: return fallback;
+		}
+
+		return {
+			val: result.toLocaleString(undefined, { maximumFractionDigits: mode === 'avg' ? 1 : 0 }),
+			diff,
+			diffPct,
+			rawVal: result
+		};
+	};
+
 	const formatOptions = (chart: any, brand?: any) => {
 		if (!chart) return {};
 
@@ -8,14 +51,13 @@ export const useChartFormatter = () => {
 		const globalType = chart.type || "bar";
 		const raw = chart.rawData || [];
 
-		// 1. Theme Logic (Priority: Brand Profile > Config Palette > System Default)
+		// 1. Theme Logic
 		const isDark = config.darkMode;
 		const finalPalette = brand?.palette?.length
 			? brand.palette
 			: (config.palette || CHART_PALETTES.vibrant);
 
 		const defaultText = isDark ? "#f3f4f6" : "#374151";
-		// Use brand text color if it exists, else use config or default
 		const finalTextColor = brand?.textColor || config.textColor || defaultText;
 		const finalFont = brand?.fontFamily || config.fontFamily || "Geist";
 
@@ -26,7 +68,7 @@ export const useChartFormatter = () => {
 		const labels = filtered.map((r: any) => r.label);
 		const seriesKeys = Object.keys(filtered[0] || {}).filter((k) => k.startsWith("val"));
 
-		// BASE SHARED SETTINGS (For all chart types)
+		// BASE SHARED SETTINGS
 		const baseSettings = {
 			backgroundColor: isDark ? "#0f0f0f" : "transparent",
 			color: finalPalette,
@@ -35,16 +77,14 @@ export const useChartFormatter = () => {
 				fontFamily: finalFont
 			},
 			legend: {
-				show: config.showLegend !== false,
-				orient: (config.legendPosition === 'left' || config.legendPosition === 'right') ? 'vertical' : 'horizontal',
-				left: config.legendPosition === 'left' ? 'left' : (config.legendPosition === 'right' ? 'right' : 'center'),
-				top: config.legendPosition === 'top' ? 'top' : (config.legendPosition === 'bottom' ? 'bottom' : 'middle'),
-				textStyle: { color: finalTextColor, fontSize: config.fontSize }
+				show: false,
+
 			},
 			tooltip: {
 				backgroundColor: isDark ? "#1f2937" : "#ffffff",
 				borderColor: isDark ? "#374151" : "#e5e7eb",
-				textStyle: { color: finalTextColor }
+				textStyle: { color: finalTextColor },
+				trigger: (globalType === 'pie' || globalType === 'donut' || globalType === 'funnel') ? 'item' : 'axis'
 			}
 		};
 
@@ -52,7 +92,6 @@ export const useChartFormatter = () => {
 		if (globalType === "radar") {
 			return {
 				...baseSettings,
-				tooltip: { ...baseSettings.tooltip, trigger: 'item' },
 				radar: {
 					indicator: filtered.map(r => ({ name: r.label, max: config.radarMax || 100 })),
 					axisName: { color: finalTextColor, fontFamily: finalFont },
@@ -72,7 +111,6 @@ export const useChartFormatter = () => {
 		if (globalType === "heatmap") {
 			return {
 				...baseSettings,
-				tooltip: { ...baseSettings.tooltip, trigger: 'item' },
 				visualMap: {
 					min: 0, max: 100, orient: 'horizontal', left: 'center', bottom: 0,
 					textStyle: { color: finalTextColor },
@@ -92,7 +130,6 @@ export const useChartFormatter = () => {
 		if (globalType === "funnel") {
 			return {
 				...baseSettings,
-				tooltip: { ...baseSettings.tooltip, trigger: 'item' },
 				series: [{
 					type: 'funnel',
 					left: '10%', width: '80%',
@@ -106,7 +143,6 @@ export const useChartFormatter = () => {
 		if (globalType === "pie" || globalType === "donut") {
 			return {
 				...baseSettings,
-				tooltip: { ...baseSettings.tooltip, trigger: 'item' },
 				series: [{
 					type: 'pie',
 					radius: globalType === 'donut' ? ['40%', '70%'] : '70%',
@@ -120,7 +156,7 @@ export const useChartFormatter = () => {
 			};
 		}
 
-		// --- TYPE: STANDARD GRID (BAR, LINE, AREA, SCATTER, STEP) ---
+		// --- TYPE: STANDARD GRID ---
 		const series = seriesKeys.map((key, idx) => {
 			const specificType = config.columnTypes?.[key] || globalType;
 			const isArea = specificType === "area";
@@ -142,7 +178,6 @@ export const useChartFormatter = () => {
 					color: finalTextColor,
 					formatter: (p: any) => `${p.value.toFixed(config.precision || 0)}${config.suffix || ""}`,
 				},
-				// Goal Line
 				markLine: idx === 0 && config.goalValue ? {
 					symbol: ["none", "none"],
 					data: [{ yAxis: config.goalValue }],
@@ -154,11 +189,11 @@ export const useChartFormatter = () => {
 
 		return {
 			...baseSettings,
-			tooltip: { ...baseSettings.tooltip, trigger: "axis" },
 			grid: {
 				left: '3%',
 				right: '4%',
-				bottom: '10%',
+				bottom: config.legend?.position === 'bottom' ? '15%' : '10%',
+				top: '2%',
 				containLabel: true,
 				show: false
 			},
@@ -180,5 +215,8 @@ export const useChartFormatter = () => {
 		};
 	};
 
-	return { formatOptions };
+	return {
+		formatOptions,
+		getLegendValue
+	};
 };
