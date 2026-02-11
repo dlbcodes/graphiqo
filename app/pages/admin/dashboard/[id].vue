@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import {
-    PhArrowLeft,
     PhShareNetwork,
-    PhChartLine,
-    PhHouse,
     PhList,
-    PhDownloadSimple,
     PhPresentation,
     PhQuestion,
 } from "@phosphor-icons/vue";
@@ -21,15 +17,13 @@ const { formatOptions } = useChartFormatter();
 const activeTab = ref<"data" | "type" | "settings" | "brand" | null>(null);
 
 onMounted(async () => {
-    // Run these in parallel for better performance
     await Promise.all([
         store.fetchDashboard(route.params.id as string),
-        store.fetchDashboards(), // This fills the 'dashboards' array for the breadcrumb
+        store.fetchDashboards(),
         brandStore.fetchBrands(),
     ]);
 });
 
-// Computed: Get the currently active chart object
 const activeChart = computed(() => {
     const charts = store.currentDashboard?.charts;
     if (!charts || charts.length === 0) return null;
@@ -38,29 +32,23 @@ const activeChart = computed(() => {
 
 const linkedBrand = computed(() => {
     const brandId = activeChart.value?.config?.brandProfileId;
-    if (!brandId) return null;
-
-    // Find the brand in the store that matches the ID saved in the chart config
-    return brandStore.brands.find((b) => b.id === brandId);
+    return brandId ? brandStore.brands.find((b) => b.id === brandId) : null;
 });
 
-// Computed: Format options using the specific brand found above
 const chartOptions = computed(() =>
     formatOptions(activeChart.value, linkedBrand.value),
 );
 
-// Helper: Quick update for the store
-const updateChart = (data: any) => {
+const updateChart = (payload: any) => {
     if (activeChart.value) {
-        store.updateChartData(activeChart.value.id, data);
+        store.updateChartData(activeChart.value.id, payload);
     }
 };
 </script>
 
 <template>
-    <!-- bg-[#F9F8F6] -->
     <div
-        class="flex max-h-screen overflow-hidden relative font-sans bg-stone-50 bg-[repeating-linear-gradient(135deg,var(--color-stone-100)_0px,var(--color-stone-100)_1px,transparent_1px,transparent_20px)]"
+        class="flex h-screen overflow-hidden relative font-sans bg-stone-50 bg-[repeating-linear-gradient(135deg,var(--color-stone-100)_0px,var(--color-stone-100)_1px,transparent_1px,transparent_20px)]"
     >
         <div class="fixed left-8 bottom-8 z-50">
             <button
@@ -72,11 +60,10 @@ const updateChart = (data: any) => {
 
         <DockMenu v-model="activeTab">
             <template #data>
-                <div v-if="activeChart" class="h-full">
+                <div v-if="activeChart" class="h-full w-full grid">
                     <DataSheet v-model="activeChart.rawData" />
                 </div>
             </template>
-
             <template #type>
                 <div v-if="activeChart" class="p-0">
                     <ChartType
@@ -86,13 +73,11 @@ const updateChart = (data: any) => {
                     />
                 </div>
             </template>
-
             <template #brand>
                 <div v-if="activeChart" class="p-0 h-full">
                     <ChartSettings v-model="activeChart.config" />
                 </div>
             </template>
-
             <template #layout>
                 <div v-if="activeChart" class="p-2">
                     <ChartLayout v-model="activeChart.config" />
@@ -138,9 +123,11 @@ const updateChart = (data: any) => {
                 </div>
             </header>
 
-            <div class="flex-1 px-12 pb-12 flex items-center justify-center">
+            <div
+                class="flex-1 px-12 pb-12 flex items-center justify-center min-h-0"
+            >
                 <div
-                    class="w-full h-full max-w-6xl rounded-4xl p-6 transition-all duration-700 relative overflow-hidden group shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
+                    class="w-full h-full max-w-6xl rounded-4xl p-10 transition-all duration-700 relative flex flex-col shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
                     :class="
                         activeChart?.config?.darkMode
                             ? 'bg-[#0F0F0F] border-stone-800'
@@ -149,7 +136,7 @@ const updateChart = (data: any) => {
                 >
                     <div
                         v-if="!activeChart"
-                        class="absolute inset-0 flex items-center justify-center"
+                        class="flex-1 flex items-center justify-center"
                     >
                         <div
                             class="animate-pulse text-stone-300 font-black uppercase text-[10px] tracking-[0.3em]"
@@ -162,10 +149,7 @@ const updateChart = (data: any) => {
                         v-else
                         :options="chartOptions"
                         :chart-data="activeChart"
-                        @updateMetadata="
-                            (payload) =>
-                                store.updateChartData(activeChart.id, payload)
-                        "
+                        @updateMetadata="updateChart"
                     />
                 </div>
             </div>
@@ -174,17 +158,13 @@ const updateChart = (data: any) => {
 </template>
 
 <style scoped>
-/* Main Transition for Layout Nudge */
 main {
     transition: padding-left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 :deep(.ve-container) {
     border: none !important;
     background: transparent !important;
 }
-
-/* Custom Input Focus */
 input:focus {
     box-shadow: none !important;
 }

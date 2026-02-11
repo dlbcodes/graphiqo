@@ -136,7 +136,7 @@ onUnmounted(() => {
         </div>
 
         <div
-            class="mt-6 flex flex-col justify-between items-start gap-y-4 shrink-0 pt-4 border-t"
+            class="mt-0 flex flex-col justify-between items-start gap-y-4 shrink-0 pt-4 border-t"
             :class="isDark ? 'border-stone-800' : 'border-stone-100'"
         >
             <div class="w-full flex flex-col gap-y-1">

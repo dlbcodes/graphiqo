@@ -190,8 +190,8 @@ export const useChartFormatter = () => {
 		return {
 			...baseSettings,
 			grid: {
-				left: '3%',
-				right: '4%',
+				left: '0%',
+				right: '0%',
 				bottom: config.legend?.position === 'bottom' ? '15%' : '10%',
 				top: '2%',
 				containLabel: true,

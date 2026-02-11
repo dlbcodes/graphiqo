@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref, watch, onUnmounted } from "vue";
+
 const props = defineProps<{
     modelValue: any[];
 }>();
@@ -7,33 +9,33 @@ const emit = defineEmits(["update:modelValue"]);
 
 const columnCount = 15;
 const rowCount = 50;
+const localRows = ref<any[]>([]);
 
-const localData = computed({
-    get: () => {
-        const data = props.modelValue || [];
-        // If we have fewer rows than rowCount, pad with empty objects
-        if (data.length < rowCount) {
-            const padding = Array.from(
-                { length: rowCount - data.length },
-                () => ({
-                    label: "",
-                    // Initialize val1...val15 as null so they exist in the object
-                    ...Object.fromEntries(
-                        Array.from({ length: columnCount }, (_, i) => [
-                            `val${i + 1}`,
-                            null,
-                        ]),
-                    ),
-                }),
-            );
-            return [...data, ...padding];
+// 1. Helper to pad the array
+const prepareData = (incoming: any[]) => {
+    // Clone to prevent mutating props directly
+    const data = JSON.parse(JSON.stringify(incoming || []));
+    while (data.length < rowCount) {
+        const emptyRow: any = { label: "" };
+        for (let i = 1; i <= columnCount; i++) {
+            emptyRow[`val${i}`] = null;
         }
-        return data;
-    },
-    set: (val) => {
-        // CLEANUP: When saving, filter out rows that are completely empty
-        // so we don't bloat the database with 50 empty rows.
-        const cleanedData = val.filter((row) => {
+        data.push(emptyRow);
+    }
+    return data;
+};
+
+// 2. Initial load
+localRows.value = prepareData(props.modelValue);
+
+// 3. Debounce Logic: Sync to chart 300ms after last keystroke
+let debounceTimer: any = null;
+
+const syncToChart = () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(() => {
+        const cleanedData = localRows.value.filter((row) => {
             return (
                 row.label?.trim() !== "" ||
                 Object.keys(row).some(
@@ -45,7 +47,12 @@ const localData = computed({
             );
         });
         emit("update:modelValue", cleanedData);
-    },
+    }, 300); // 300ms delay for smoothness
+};
+
+// 4. Ensure cleanup
+onUnmounted(() => {
+    if (debounceTimer) clearTimeout(debounceTimer);
 });
 
 const dataColumns = Array.from({ length: columnCount }, (_, i) => ({
@@ -55,55 +62,32 @@ const dataColumns = Array.from({ length: columnCount }, (_, i) => ({
 </script>
 
 <template>
-    <div class="sheet-container">
+    <div class="sheet-root h-full w-full">
         <ClientOnly>
-            <vue-excel-editor
-                v-model="localData"
-                width="100%"
-                height="100%"
-                remember
-                no-footer
-                allow-add-row
-            >
-                <vue-excel-column
-                    field="label"
-                    label="Label"
-                    type="string"
-                    width="150px"
-                />
-                <vue-excel-column
-                    v-for="col in dataColumns"
-                    :key="col.field"
-                    :field="col.field"
-                    :label="col.label"
-                    type="number"
-                    width="100px"
-                />
-            </vue-excel-editor>
+            <div class="editor-wrapper h-full">
+                <vue-excel-editor
+                    v-model="localRows"
+                    width="100%"
+                    no-footer
+                    @input="syncToChart"
+                    @change="syncToChart"
+                >
+                    <vue-excel-column
+                        field="label"
+                        label="Label"
+                        type="string"
+                        width="150px"
+                    />
+                    <vue-excel-column
+                        v-for="col in dataColumns"
+                        :key="col.field"
+                        :field="col.field"
+                        :label="col.label"
+                        type="number"
+                        width="100px"
+                    />
+                </vue-excel-editor>
+            </div>
         </ClientOnly>
     </div>
 </template>
-
-<style scoped>
-.sheet-container {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-}
-
-:deep(.ve-container) {
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-:deep(.ve-table-container) {
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: auto !important;
-}
-
-:deep(.ve-content-container) {
-    height: 100% !important;
-}
-</style>
