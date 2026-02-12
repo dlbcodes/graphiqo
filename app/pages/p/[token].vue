@@ -1,41 +1,3 @@
-<template>
-    <div
-        class="min-h-screen bg-white flex flex-col items-center justify-center p-4 md:p-12"
-    >
-        <div v-if="pending" class="animate-pulse flex flex-col items-center">
-            <div class="h-8 w-64 bg-stone-100 rounded mb-4"></div>
-            <div
-                class="h-[400px] w-full max-w-4xl bg-stone-50 rounded-xl"
-            ></div>
-        </div>
-
-        <template v-else-if="chart">
-            <div class="w-full max-w-5xl">
-                <div
-                    class="aspect-video w-full bg-white rounded-2xl border border-stone-200 shadow-sm p-6"
-                >
-                    <ChartPreview
-                        :options="formattedOptions"
-                        :chart-data="chart"
-                    />
-                </div>
-
-                <div
-                    class="mt-6 flex justify-between items-center text-stone-500 text-sm"
-                >
-                    <Logo class="size-20" />
-                    <NuxtLink
-                        to="/"
-                        class="font-bold text-stone-900 hover:underline"
-                    >
-                        Create your own chart →
-                    </NuxtLink>
-                </div>
-            </div>
-        </template>
-    </div>
-</template>
-
 <script setup lang="ts">
 const route = useRoute();
 const { formatOptions } = useChartFormatter();
@@ -64,3 +26,47 @@ useHead({
     ],
 });
 </script>
+
+<template>
+    <div
+        class="min-h-screen bg-white flex flex-col items-center justify-center p-4 md:p-8"
+    >
+        <div v-if="pending" class="animate-pulse flex flex-col items-center">
+            <div class="h-8 w-64 bg-stone-100 rounded mb-4"></div>
+            <div
+                class="h-[400px] w-full max-w-4xl bg-stone-50 rounded-xl"
+            ></div>
+        </div>
+
+        <template v-else-if="chart">
+            <div class="w-full max-w-5xl">
+                <div
+                    class="w-full h-full max-w-6xl rounded-4xl p-10 transition-all duration-700 relative flex flex-col shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
+                    :class="
+                        chart?.config?.darkMode
+                            ? 'bg-[#0F0F0F] border-stone-800'
+                            : 'bg-white'
+                    "
+                >
+                    <ChartPreview
+                        :options="formattedOptions"
+                        :chart-data="chart"
+                        readonly
+                    />
+                </div>
+
+                <div
+                    class="mt-2 flex justify-between items-center text-stone-500 text-sm"
+                >
+                    <Logo class="size-20" />
+                    <NuxtLink
+                        to="/"
+                        class="font-bold text-stone-900 hover:underline"
+                    >
+                        Create your own chart →
+                    </NuxtLink>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

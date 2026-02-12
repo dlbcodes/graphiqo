@@ -83,6 +83,10 @@ model Chart {
 
   order       Int       @default(0) // For positioning multiple charts later
 
+  shareToken   String   @unique @default(uuid()) // Public use only
+  isPublic     Boolean  @default(false)
+  publicViews   Int      @default(0) // <--- Add this line
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

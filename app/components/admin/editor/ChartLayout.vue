@@ -33,5 +33,10 @@ const updateConfig = (newValue: any) => {
             :model-value="modelValue"
             @update:model-value="updateConfig"
         />
+
+        <ChartVisibilitySettings
+            :model-value="modelValue"
+            @update:model-value="updateConfig"
+        />
     </div>
 </template>
