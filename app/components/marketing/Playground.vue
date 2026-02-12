@@ -25,7 +25,7 @@ const mergedChartData = computed(() => ({
 </script>
 
 <template>
-    <section class="py-24 bg-white overflow-hidden border-b border-stone-100">
+    <section class="py-20 bg-white overflow-hidden border-b border-stone-100">
         <div class="max-w-6xl w-full mx-auto px-6">
             <div class="flex flex-col items-center">
                 <div class="flex flex-col">
