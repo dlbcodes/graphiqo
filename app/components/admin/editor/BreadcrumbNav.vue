@@ -51,7 +51,7 @@ const chartOptions = computed(() =>
 
         <span class="text-stone-300 mx-1 shrink-0">/</span>
 
-        <div class="flex items-center shrink-0">
+        <div class="flex items-center shrink-0 max-w-[200px]">
             <span
                 class="pl-2 pr-1 text-stone-900 capitalize truncate max-w-[150px]"
             >
@@ -68,7 +68,7 @@ const chartOptions = computed(() =>
 
         <span class="text-stone-300 mx-1 shrink-0">/</span>
 
-        <div class="flex items-center shrink-0">
+        <div class="flex items-center shrink-0 max-w-[200px]">
             <div class="flex items-center gap-2 pl-2 pr-1 text-stone-900">
                 <component
                     :is="activeIcon"

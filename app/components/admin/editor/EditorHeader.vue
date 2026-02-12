@@ -29,8 +29,9 @@ const activeChart = computed(() => {
             <Button variant="icon" size="icon" @click="navigateTo('/admin')">
                 <PhList class="size-5 shrink-0" />
             </Button>
-
-            <BreadcrumbNav />
+            <ClientOnly>
+                <BreadcrumbNav />
+            </ClientOnly>
         </div>
 
         <div class="flex items-center gap-6">

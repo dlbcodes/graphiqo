@@ -88,13 +88,7 @@ watch(
     <div
         class="flex h-screen overflow-hidden relative font-sans bg-stone-50 bg-[repeating-linear-gradient(135deg,var(--color-stone-100)_0px,var(--color-stone-100)_1px,transparent_1px,transparent_20px)]"
     >
-        <div class="fixed left-8 bottom-8 z-50">
-            <button
-                class="size-12 rounded-full bg-white shadow-lg border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-all hover:scale-105 active:scale-95"
-            >
-                <PhQuestion class="size-6" />
-            </button>
-        </div>
+        <FloatingHelp />
 
         <DockMenu v-model="activeTab">
             <template #data>
