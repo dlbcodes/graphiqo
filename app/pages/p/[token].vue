@@ -56,9 +56,8 @@ useHead({
                 </div>
 
                 <div
-                    class="mt-2 flex justify-between items-center text-stone-500 text-sm"
+                    class="mt-2 flex justify-end items-center text-stone-500 text-sm"
                 >
-                    <Logo class="size-20" />
                     <NuxtLink
                         to="/"
                         class="font-bold text-stone-900 hover:underline"

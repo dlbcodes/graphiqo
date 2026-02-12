@@ -211,6 +211,21 @@ onUnmounted(() => {
                 </component>
             </div>
         </div>
+        <div
+            v-if="readonly"
+            class="mt-1 flex items-center justify-center gap-2 transform hover:scale-110 transition-transform"
+        >
+            <span
+                class="text-[10px] font-medium tracking-wider uppercase"
+                :class="isDark ? 'text-stone-50' : 'text-stone-900'"
+            >
+                Built with
+            </span>
+            <Logo
+                class="w-20"
+                :class="isDark ? 'text-white' : 'text-stone-900'"
+            />
+        </div>
     </div>
 </template>
 
