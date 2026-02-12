@@ -130,12 +130,13 @@ watch(
                 >
                     <div
                         v-if="!activeChart"
-                        class="flex-1 flex items-center justify-center"
+                        class="flex-1 flex flex-col items-center justify-center gap-y-2"
                     >
+                        <Spinner />
                         <div
-                            class="animate-pulse text-stone-300 font-black uppercase text-[10px] tracking-[0.3em]"
+                            class="animate-pulse text-stone-300 font-medium text-sm"
                         >
-                            Loading Canvas...
+                            Loading chart...
                         </div>
                     </div>
 

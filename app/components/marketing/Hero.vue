@@ -41,7 +41,7 @@ const submit = () => {
                 <span class="relative inline-block">
                     <span class="relative z-10">seconds.</span>
                     <span
-                        class="absolute inset-0 bg-amber-300 -skew-y-2 transform -z-0 -inset-x-2 inset-y-1"
+                        class="absolute inset-0 bg-amber-300 -skew-y-2 transform z-0 -inset-x-2 inset-y-1"
                     ></span>
                 </span>
             </h1>
@@ -78,8 +78,6 @@ const submit = () => {
                 />
             </Panel>
         </div>
-
-        <Playground />
     </section>
     <!-- End Hero -->
 </template>

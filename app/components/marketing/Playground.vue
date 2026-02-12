@@ -26,7 +26,7 @@ const mergedChartData = computed(() => ({
 
 <template>
     <section class="py-24 bg-white overflow-hidden border-b border-stone-100">
-        <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-6xl w-full mx-auto px-6">
             <div class="flex flex-col items-center">
                 <div class="flex flex-col">
                     <div
@@ -81,24 +81,20 @@ const mergedChartData = computed(() => ({
                     </NuxtLink>
                 </div>
 
-                <div class="relative">
+                <div class="relative w-full">
                     <div
-                        class="relative rounded-[40px] p-2 transition-colors duration-500 shadow-2xl"
+                        class="w-full h-full max-w-6xl rounded-4xl p-10 transition-all duration-700 relative flex flex-col shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
                         :class="
                             activePreset?.config.darkMode
                                 ? 'bg-stone-900 shadow-black/20'
                                 : 'bg-white shadow-stone-200'
                         "
                     >
-                        <div
-                            class="w-full p-8 border border-stone-100/10 rounded-[32px]"
-                        >
-                            <ChartPreview
-                                :chart-data="mergedChartData"
-                                :options="activePreset?.options"
-                                readonly
-                            />
-                        </div>
+                        <ChartPreview
+                            :chart-data="mergedChartData"
+                            :options="activePreset?.options"
+                            readonly
+                        />
                     </div>
                 </div>
             </div>

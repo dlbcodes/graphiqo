@@ -30,6 +30,8 @@ definePageMeta({
     <NuxtLayout>
         <Hero />
 
+        <Playground />
+
         <!-- Animation -->
         <section
             class="relative flex flex-col gap-y-6 items-center justify-center text-center"

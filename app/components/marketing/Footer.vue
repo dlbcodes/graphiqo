@@ -13,8 +13,9 @@ import { siteConfig } from "~/config/marketing";
                     <div class="flex flex-col gap-y-4">
                         <Logo />
                         <p class="text-sm text-stone-500 dark:text-dark-400">
-                            Show your work, grab attention, and send people
-                            exactly where you want — all from one link.
+                            Build stunning, customizable charts in seconds. No
+                            clutter, no complexity — just powerful
+                            visualizations you can share anywhere.
                         </p>
                     </div>
                     <!-- End Logo -->
