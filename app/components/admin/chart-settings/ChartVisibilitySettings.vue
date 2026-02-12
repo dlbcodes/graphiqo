@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { PhEye, PhNotebook, PhLink } from "@phosphor-icons/vue";
+import {
+    PhEye,
+    PhNotebook,
+    PhLink,
+    PhTextT,
+    PhTextAlignLeft,
+} from "@phosphor-icons/vue";
 
 const props = defineProps<{ modelValue: any }>();
 const emit = defineEmits(["update:modelValue"]);
@@ -21,6 +27,28 @@ const updateValue = (key: string, val: any) => {
         </template>
 
         <div class="space-y-4 pt-2">
+            <Switch
+                :model-value="!config.hideTitle"
+                @update:model-value="(val) => updateValue('hideTitle', !val)"
+                class="flex justify-between"
+            >
+                <div class="flex items-center gap-2">
+                    <PhTextT class="size-3.5 text-stone-400" />
+                    <span>Show Title</span>
+                </div>
+            </Switch>
+
+            <Switch
+                :model-value="!config.hideSubtitle"
+                @update:model-value="(val) => updateValue('hideSubtitle', !val)"
+                class="flex justify-between"
+            >
+                <div class="flex items-center gap-2">
+                    <PhTextAlignLeft class="size-3.5 text-stone-400" />
+                    <span>Show Subtitle</span>
+                </div>
+            </Switch>
+
             <Switch
                 :model-value="!config.hideNotes"
                 @update:model-value="(val) => updateValue('hideNotes', !val)"

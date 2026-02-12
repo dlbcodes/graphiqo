@@ -27,13 +27,16 @@ const config = computed(() => props.chartData?.config || {});
 const isDark = computed(() => config.value.darkMode);
 
 // Local temporary name to handle input before sync
-const localName = ref(props.chartData?.name);
+const localName = ref(props.chartData?.name || "");
+
 watch(
     () => props.chartData?.name,
-    (newVal) => (localName.value = newVal),
+    (newVal) => {
+        if (newVal !== undefined) localName.value = newVal;
+    },
+    { immediate: true }, // Ensures it populates on refresh/mount
 );
 
-// Helper to update config fields
 const updateConfig = (key: string, value: string) => {
     emit("updateMetadata", { config: { ...config.value, [key]: value } });
 };
@@ -109,48 +112,34 @@ onUnmounted(() => {
         class="h-full w-full flex flex-col font-sans group"
         :class="{ 'is-readonly': readonly }"
     >
-        <div class="mb-6 shrink-0 text-left space-y-0">
-            <template v-if="!readonly">
-                <input
-                    v-model="localName"
-                    @blur="$emit('updateMetadata', { name: localName })"
-                    placeholder="Chart Title..."
-                    class="w-full text-lg font-semibold tracking-tight bg-transparent border-none focus:ring-0 p-0 placeholder:text-stone-300 transition-colors"
-                    :class="isDark ? 'text-white' : 'text-stone-900'"
-                />
-            </template>
-            <template v-else>
-                <h1
-                    class="w-full text-lg font-semibold tracking-tight p-0"
-                    :class="isDark ? 'text-white' : 'text-stone-900'"
-                >
-                    {{ localName }}
-                </h1>
-            </template>
+        <div
+            v-if="!config.hideTitle || !config.hideSubtitle"
+            class="mb-6 shrink-0 text-left space-y-0"
+        >
+            <component
+                :is="readonly ? 'h1' : 'input'"
+                v-if="!config.hideTitle"
+                :value="localName"
+                @input="(e: any) => (localName = e.target.value)"
+                @blur="$emit('updateMetadata', { name: localName })"
+                placeholder="Chart Title..."
+                class="w-full text-lg font-semibold tracking-tight bg-transparent border-none focus:ring-0 p-0 placeholder:text-stone-300 transition-colors"
+                :class="isDark ? 'text-white' : 'text-stone-900'"
+            >
+                <template v-if="readonly">{{ localName }}</template>
+            </component>
 
-            <template v-if="!readonly">
-                <input
-                    :value="config.subtitle"
-                    @input="
-                        (e) =>
-                            updateConfig(
-                                'subtitle',
-                                (e.target as HTMLInputElement).value,
-                            )
-                    "
-                    placeholder="Add a subtitle..."
-                    class="w-full text-sm font-medium bg-transparent border-none focus:ring-0 p-0 opacity-60 placeholder:text-stone-300"
-                    :class="isDark ? 'text-stone-400' : 'text-stone-500'"
-                />
-            </template>
-            <template v-else-if="config.subtitle">
-                <p
-                    class="w-full text-sm font-medium p-0 opacity-60"
-                    :class="isDark ? 'text-stone-400' : 'text-stone-500'"
-                >
-                    {{ config.subtitle }}
-                </p>
-            </template>
+            <component
+                :is="readonly ? 'p' : 'input'"
+                v-if="!config.hideSubtitle && (!readonly || config.subtitle)"
+                :value="config.subtitle"
+                @input="(e: any) => updateConfig('subtitle', e.target.value)"
+                placeholder="Add a subtitle..."
+                class="w-full text-sm font-medium bg-transparent border-none focus:ring-0 p-0 opacity-60 placeholder:text-stone-300"
+                :class="isDark ? 'text-stone-400' : 'text-stone-500'"
+            >
+                <template v-if="readonly">{{ config.subtitle }}</template>
+            </component>
         </div>
 
         <ChartLegend
@@ -171,8 +160,8 @@ onUnmounted(() => {
         <div
             v-if="
                 (!readonly && (!config.hideNotes || !config.hideSource)) ||
-                (readonly && config.notes && !config.hideNotes) ||
-                !config.hideSource
+                (readonly &&
+                    ((config.notes && !config.hideNotes) || !config.hideSource))
             "
             class="mt-0 flex flex-col justify-between items-start gap-y-4 shrink-0 pt-4 border-t"
             :class="isDark ? 'border-stone-800' : 'border-stone-100'"
@@ -184,34 +173,20 @@ onUnmounted(() => {
                 <span
                     class="font-bold uppercase text-[10px] opacity-40"
                     :class="isDark ? 'text-stone-400' : 'text-stone-500'"
+                    >Note:</span
                 >
-                    Note:
-                </span>
 
-                <template v-if="!readonly">
-                    <textarea
-                        :value="config.notes"
-                        @input="
-                            (e) =>
-                                updateConfig(
-                                    'notes',
-                                    (e.target as HTMLTextAreaElement).value,
-                                )
-                        "
-                        placeholder="Add notes about this data..."
-                        rows="2"
-                        class="w-full text-xs leading-relaxed italic bg-transparent border-none focus:ring-0 p-0 resize-none placeholder:text-stone-300 transition-opacity"
-                        :class="isDark ? 'text-stone-400' : 'text-stone-500'"
-                    ></textarea>
-                </template>
-                <template v-else>
-                    <p
-                        class="w-full text-xs leading-relaxed italic p-0"
-                        :class="isDark ? 'text-stone-400' : 'text-stone-500'"
-                    >
-                        {{ config.notes }}
-                    </p>
-                </template>
+                <component
+                    :is="readonly ? 'p' : 'textarea'"
+                    :value="config.notes"
+                    @input="(e: any) => updateConfig('notes', e.target.value)"
+                    placeholder="Add notes about this data..."
+                    :rows="readonly ? undefined : 2"
+                    class="w-full text-xs leading-relaxed italic bg-transparent border-none focus:ring-0 p-0 resize-none placeholder:text-stone-300 transition-opacity"
+                    :class="isDark ? 'text-stone-400' : 'text-stone-500'"
+                >
+                    <template v-if="readonly">{{ config.notes }}</template>
+                </component>
             </div>
 
             <div
@@ -221,33 +196,19 @@ onUnmounted(() => {
                 <span
                     class="text-[8px] font-black uppercase tracking-[0.2em] opacity-40 block mr-2"
                     :class="isDark ? 'text-stone-400' : 'text-stone-500'"
+                    >Source</span
                 >
-                    Source
-                </span>
 
-                <template v-if="!readonly">
-                    <input
-                        :value="config.source"
-                        @input="
-                            (e) =>
-                                updateConfig(
-                                    'source',
-                                    (e.target as HTMLInputElement).value,
-                                )
-                        "
-                        placeholder="Data source..."
-                        class="flex-1 text-[10px] font-bold bg-transparent border-none focus:ring-0 p-0 placeholder:text-stone-300"
-                        :class="isDark ? 'text-indigo-400' : 'text-indigo-600'"
-                    />
-                </template>
-                <template v-else>
-                    <span
-                        class="flex-1 text-[10px] font-bold p-0"
-                        :class="isDark ? 'text-indigo-400' : 'text-indigo-600'"
-                    >
-                        {{ config.source }}
-                    </span>
-                </template>
+                <component
+                    :is="readonly ? 'span' : 'input'"
+                    :value="config.source"
+                    @input="(e: any) => updateConfig('source', e.target.value)"
+                    placeholder="Data source..."
+                    class="flex-1 text-[10px] font-bold bg-transparent border-none focus:ring-0 p-0 placeholder:text-stone-300"
+                    :class="isDark ? 'text-indigo-400' : 'text-indigo-600'"
+                >
+                    <template v-if="readonly">{{ config.source }}</template>
+                </component>
             </div>
         </div>
     </div>
