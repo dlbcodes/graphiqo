@@ -2,15 +2,15 @@ import type { SiteConfig, FaqItem, NavItem, PlanItem } from "~/types/marketing";
 
 
 export const siteConfig: SiteConfig = {
-	name: "Liqo",
-	title: "Liqo | Stop Sharing Buttons. Start Sharing Stories.",
-	description: "The story-driven alternative to boring link lists.",
+	name: "graphiqo",
+	title: "graphiqo | Create Beautiful Charts Instantly",
+	description: "Build stunning, customizable charts in seconds. No clutter, no complexity — just powerful visualizations you can share anywhere.",
 	defaultOgImage: "/og-image.png",
 	links: {
-		x: "https://x.com/liqo_app",
-		instagram: "https://instagram.com/",
+		x: "https://twitter.com/graphiqoHQ",
+		instagram: "https://instagram.com/graphiqoHQ",
 	},
-	email: "hello@liqo.app",
+	email: "hello@graphiqo.app",
 };
 
 export const pricing = [

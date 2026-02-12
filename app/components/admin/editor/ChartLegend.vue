@@ -63,7 +63,7 @@ const legendItems = computed(() => {
             <template v-if="item.mode !== 'none'">
                 <div class="flex items-baseline gap-1.5 leading-none">
                     <span
-                        class="text-2xl font-black"
+                        class="text-lg md:text-xl lg:text-2xl font-black"
                         :class="isDark ? 'text-white' : 'text-stone-900'"
                     >
                         {{ item.value }}

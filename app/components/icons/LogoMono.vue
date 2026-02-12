@@ -28,18 +28,6 @@ const props = withDefaults(
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink"
         >
-            <defs>
-                <linearGradient
-                    x1="91.732702%"
-                    y1="5.37460513%"
-                    x2="7.82178551%"
-                    y2="93.5167402%"
-                    id="linearGradient-1"
-                >
-                    <stop stop-color="#02C4F4" offset="0%"></stop>
-                    <stop stop-color="#FF46ED" offset="100%"></stop>
-                </linearGradient>
-            </defs>
             <g
                 id="Artboard"
                 stroke="none"
@@ -56,7 +44,7 @@ const props = withDefaults(
                 <path
                     d="M28,0 C30.209139,-4.05812251e-16 32,1.790861 32,4 L32,23.0769231 C32,25.2860621 30.209139,27.0769231 28,27.0769231 L25.846,27.076 L25.8461538,29.2307692 C25.8461538,31.4399082 24.0552928,33.2307692 21.8461538,33.2307692 L4,33.2307692 C1.790861,33.2307692 2.705415e-16,31.4399082 0,29.2307692 L0,10.1538462 C-2.705415e-16,7.94470715 1.790861,6.15384615 4,6.15384615 L6.153,6.153 L6.15384615,4 C6.15384615,1.790861 7.94470715,4.05812251e-16 10.1538462,0 L28,0 Z"
                     id="Combined-Shape"
-                    fill="url(#linearGradient-1)"
+                    fill="currentColor"
                 ></path>
             </g>
         </svg>

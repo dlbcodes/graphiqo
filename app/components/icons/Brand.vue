@@ -27,13 +27,13 @@ const props = withDefaults(
         >
             <defs>
                 <linearGradient
-                    x1="95.0046446%"
+                    x1="91.732702%"
                     y1="5.37460513%"
-                    x2="4.51491367%"
+                    x2="7.82178551%"
                     y2="93.5167402%"
                     id="linearGradient-1"
                 >
-                    <stop stop-color="#FEB60E" offset="0%"></stop>
+                    <stop stop-color="#02C4F4" offset="0%"></stop>
                     <stop stop-color="#FF46ED" offset="100%"></stop>
                 </linearGradient>
             </defs>

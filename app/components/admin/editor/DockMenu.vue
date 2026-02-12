@@ -89,9 +89,7 @@ const toggleTab = (id: string) => {
                 <div
                     class="h-10 border-t border-stone-50 flex items-center justify-center bg-stone-50/20 shrink-0"
                 >
-                    <div class="size-1 rounded-full bg-stone-200 mx-1"></div>
-                    <div class="size-1 rounded-full bg-stone-200 mx-1"></div>
-                    <div class="size-1 rounded-full bg-stone-200 mx-1"></div>
+                    <LogoMono class="size-20 text-stone-300" />
                 </div>
             </aside>
         </Transition>

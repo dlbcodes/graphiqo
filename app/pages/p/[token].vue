@@ -1,0 +1,66 @@
+<template>
+    <div
+        class="min-h-screen bg-white flex flex-col items-center justify-center p-4 md:p-12"
+    >
+        <div v-if="pending" class="animate-pulse flex flex-col items-center">
+            <div class="h-8 w-64 bg-stone-100 rounded mb-4"></div>
+            <div
+                class="h-[400px] w-full max-w-4xl bg-stone-50 rounded-xl"
+            ></div>
+        </div>
+
+        <template v-else-if="chart">
+            <div class="w-full max-w-5xl">
+                <div
+                    class="aspect-video w-full bg-white rounded-2xl border border-stone-200 shadow-sm p-6"
+                >
+                    <ChartPreview
+                        :options="formattedOptions"
+                        :chart-data="chart"
+                    />
+                </div>
+
+                <div
+                    class="mt-6 flex justify-between items-center text-stone-500 text-sm"
+                >
+                    <Logo class="size-20" />
+                    <NuxtLink
+                        to="/"
+                        class="font-bold text-stone-900 hover:underline"
+                    >
+                        Create your own chart →
+                    </NuxtLink>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>
+
+<script setup lang="ts">
+const route = useRoute();
+const { formatOptions } = useChartFormatter();
+
+// Fetch only from the public endpoint
+const { data: chart, pending } = await useFetch(
+    `/api/v1/public/chart/${route.params.token}`,
+);
+
+const formattedOptions = computed(() => {
+    if (!chart.value) return {};
+    // Pass null for brand if you want a neutral public look,
+    // or fetch brand data if the chart config requires it.
+    return formatOptions(chart.value, null);
+});
+
+// SEO: Top Developer Move
+useHead({
+    title: chart.value?.name || "Public Chart",
+    meta: [
+        {
+            name: "description",
+            content: `View ${chart.value?.name} data visualization.`,
+        },
+        { property: "og:image", content: `/api/og/${route.params.token}` }, // Bonus: OG Image route
+    ],
+});
+</script>
