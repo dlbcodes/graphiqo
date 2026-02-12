@@ -117,10 +117,10 @@ watch(
             <EditorHeader :is-saving="isSaving" :last-saved="lastSaved" />
 
             <div
-                id="chart-canvas"
                 class="flex-1 px-12 pb-12 flex items-center justify-center min-h-0"
             >
                 <div
+                    id="main-chart-area"
                     class="w-full h-full max-w-6xl rounded-4xl p-10 transition-all duration-700 relative flex flex-col shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
                     :class="
                         activeChart?.config?.darkMode

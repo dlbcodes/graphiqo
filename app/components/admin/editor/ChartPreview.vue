@@ -83,7 +83,15 @@ watch(
 
 onMounted(() => {
     if (chartRef.value) {
-        chartInstance.value = echarts.init(chartRef.value);
+        chartInstance.value = echarts.init(chartRef.value, null, {
+            renderer: "canvas",
+            useDirtyRect: false,
+            // CRITICAL: This keeps the pixels "alive" so html2canvas can grab them
+            devicePixelRatio: 2,
+            // If using native ECharts options:
+            // renderer: 'canvas',
+            // preserveDrawingBuffer: true
+        });
         if (props.options) chartInstance.value.setOption(props.options);
         window.addEventListener("resize", () => chartInstance.value?.resize());
     }
@@ -131,7 +139,7 @@ onUnmounted(() => {
             @downplay="handleDownplay"
         />
 
-        <div class="flex-1 min-h-[400px] relative">
+        <div class="flex-1 relative min-h-[200px]">
             <div ref="chartRef" class="absolute inset-0 w-full h-full"></div>
         </div>
 
