@@ -29,7 +29,7 @@ useHead({
 
 <template>
     <div
-        class="min-h-screen bg-white flex flex-col items-center justify-center p-4 md:p-8"
+        class="min-h-screen bg-white flex flex-col items-center justify-center"
     >
         <div v-if="pending" class="animate-pulse flex flex-col items-center">
             <div class="h-8 w-64 bg-stone-100 rounded mb-4"></div>
@@ -41,7 +41,7 @@ useHead({
         <template v-else-if="chart">
             <div class="w-full max-w-5xl">
                 <div
-                    class="w-full h-full max-w-6xl rounded-4xl p-10 transition-all duration-700 relative flex flex-col shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
+                    class="w-full h-full max-w-6xl rounded-4xl px-10 pt-10 pb-6 transition-all duration-700 relative flex flex-col shadow-[0_2px_4px_rgba(0,0,0,0.04),inset_0_0_0_1px_rgba(0,0,0,0.06)]"
                     :class="
                         chart?.config?.darkMode
                             ? 'bg-[#0F0F0F] border-stone-800'

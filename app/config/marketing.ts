@@ -42,65 +42,25 @@ export const pricing = [
 
 
 
-export const faqs = [
+export const faqs: FaqItem[] = [
 	{
-		question: "Is this better than a standard link list?",
-		answer:
-			"Yes. Standard links are static and boring. Liqo turns your bio into a high-energy story that keeps users in the 'flow' of social media instead of hitting them with a dry list of buttons.",
+		question: "What is this tool exactly?",
+		answer: "It’s a fast, intuitive way to create stunning charts without the mess of complex software. No steep learning curve, no clutter — just charts that look as good as your data deserves.",
 	},
 	{
-		question: "Will it slow down my bio link?",
-		answer:
-			"Not at all. We optimized Liqo for speed. The stories load instantly so your followers don't bounce while waiting for a heavy page to load.",
+		question: "Do I need to know anything about data visualization?",
+		answer: "Not at all! Whether you're a spreadsheet wizard or just need to show some stats quickly, we’ve made it easy for anyone to jump in and create a great-looking chart in seconds.",
 	},
 	{
-		question: "Is it hard to set up a story?",
-		answer:
-			"If you can post on Instagram, you can use Liqo. Just upload your media, add your links, and you're live in minutes. No 'setup maze' required.",
+		question: "Can I customize my charts?",
+		answer: "Yes — fully. Fonts, colors, gridlines, legends, styles… it’s all in your hands. Make your charts match your vibe.",
 	},
 	{
-		question: "Does it work on all mobile browsers?",
-		answer:
-			"Absolutely. It is designed mobile-first to feel native whether your users are coming from Instagram, TikTok, or Twitter.",
+		question: "Is this free?",
+		answer: "The beta is totally free while we’re testing and improving the product. Once we launch, we’ll have a free tier and a Pro plan with extra features.",
 	},
 	{
-		question: "Can I track how many people 'tapped' through?",
-		answer:
-			"Yes. You get clear analytics on every slide. You’ll know exactly where people are engaging and where they are dropping off.",
-	},
-	{
-		question: "Can I customize the colors and branding?",
-		answer:
-			"Of course. Your story should look like your brand. You can customize the theme to match your aesthetic perfectly.",
-	},
-	{
-		question: "Can I still have a 'traditional' link list if I want?",
-		answer:
-			"You can mix and match. Use a story for your main launch and keep your secondary links easily accessible at the end of the journey.",
-	},
-	{
-		question: "How many stories can I create?",
-		answer:
-			"The Free plan lets you get started immediately. Our Pro plan offers unlimited stories and deeper analytics for power creators.",
-	},
-	{
-		question: "Is there a free plan?",
-		answer:
-			"Yep. You can start building your dynamic bio for free—perfect for testing the concept with your audience.",
-	},
-	{
-		question: "What if I want to change a link quickly?",
-		answer:
-			"Updates are instant. Change a destination URL or swap an image in the dashboard and your bio link updates everywhere immediately.",
-	},
-	{
-		question: "Can I cancel my Pro subscription anytime?",
-		answer:
-			"100%. No contracts, no lock-in. We want you here because you love the product, not because of a bill.",
-	},
-	{
-		question: "Do you offer support if I get stuck?",
-		answer:
-			"Definitely. Reach out via the dashboard or Twitter and we'll help you get your story looking perfect.",
+		question: "What formats can I export my charts in?",
+		answer: "You can export as PNG, or JPG. Or just grab a link and share it instantly — no downloads required.",
 	},
 ];

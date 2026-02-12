@@ -37,7 +37,13 @@ const submit = () => {
                 class="text-center text-5xl tracking-tighter md:text-6xl lg:text-7xl font-bold text-stone-950 dark:text-dark-100"
             >
                 Create stunning <br />
-                charts in seconds.
+                charts in
+                <span class="relative inline-block">
+                    <span class="relative z-10">seconds.</span>
+                    <span
+                        class="absolute inset-0 bg-amber-300 -skew-y-2 transform -z-0 -inset-x-2 inset-y-1"
+                    ></span>
+                </span>
             </h1>
             <p class="text-balance text-stone-600 dark:text-dark-400">
                 No clutter. No complexity. Just powerful, instant chart creation
@@ -53,50 +59,27 @@ const submit = () => {
             </Button>
         </div>
 
-        <div class="hidden md:flex justify-center items-center">
-            <div
-                class="w-72 aspect-9/16 bg-stone-200 rounded-3xl overflow-hidden scale-75"
-            >
-                <video
-                    src="https://d1awd69t1ppqjh.cloudfront.net/static/marketing/liqo-example-1.mp4"
-                    muted
-                    @mouseenter="(e) => (e.target as HTMLVideoElement).play()"
-                    @mouseleave="(e) => (e.target as HTMLVideoElement).pause()"
-                    loop
-                    playsinline
-                    webkit-playsinline
-                    class="w-full h-full object-cover"
+        <div class="pt-10">
+            <Panel class="p-0 max-w-5xl">
+                <!-- Light mode image -->
+                <NuxtImg
+                    provider="cloudfront"
+                    src="/static/editor-light.png"
+                    alt="Dashboard Light"
+                    class="block dark:hidden w-full"
                 />
-            </div>
-            <div
-                class="w-72 aspect-9/16 bg-stone-200 rounded-3xl overflow-hidden"
-            >
-                <video
-                    src="https://d1awd69t1ppqjh.cloudfront.net/static/marketing/liqo-example-1.mp4"
-                    muted
-                    @mouseenter="(e) => (e.target as HTMLVideoElement).play()"
-                    @mouseleave="(e) => (e.target as HTMLVideoElement).pause()"
-                    loop
-                    playsinline
-                    webkit-playsinline
-                    class="w-full h-full object-cover"
+
+                <!-- Dark mode image -->
+                <NuxtImg
+                    provider="cloudfront"
+                    src="/static/editor-light.png"
+                    alt="Dashboard Dark"
+                    class="hidden dark:block w-full"
                 />
-            </div>
-            <div
-                class="w-72 aspect-9/16 bg-stone-200 rounded-3xl overflow-hidden scale-75"
-            >
-                <video
-                    src="https://d1awd69t1ppqjh.cloudfront.net/static/marketing/liqo-example-1.mp4"
-                    muted
-                    @mouseenter="(e) => (e.target as HTMLVideoElement).play()"
-                    @mouseleave="(e) => (e.target as HTMLVideoElement).pause()"
-                    loop
-                    playsinline
-                    webkit-playsinline
-                    class="w-full h-full object-cover"
-                />
-            </div>
+            </Panel>
         </div>
+
+        <Playground />
     </section>
     <!-- End Hero -->
 </template>
