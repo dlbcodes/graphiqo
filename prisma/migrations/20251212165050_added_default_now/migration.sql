@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "profiles" ALTER COLUMN "updatedAt" SET DEFAULT CURRENT_TIMESTAMP;
