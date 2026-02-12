@@ -16,6 +16,9 @@ const props = defineProps<{
 const store = useDashboardStore();
 const timeAgo = useTimeAgo(() => props.lastSaved ?? new Date());
 
+// Modal State
+const isShareModalOpen = ref(false);
+
 // Derived state for breadcrumbs
 const activeChart = computed(() => {
     const charts = store.currentDashboard?.charts;
@@ -56,11 +59,14 @@ const activeChart = computed(() => {
                     <PhPresentation class="size-5 shrink-0" />
                     Presentation
                 </Button>
-                <Button>
+
+                <Button @click="isShareModalOpen = true">
                     <PhShareNetwork class="size-5 shrink-0" />
                     Share
                 </Button>
             </div>
         </div>
+
+        <ShareChartModal v-model="isShareModalOpen" />
     </header>
 </template>

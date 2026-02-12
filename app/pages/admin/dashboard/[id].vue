@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import {
-    PhShareNetwork,
-    PhList,
-    PhPresentation,
-    PhQuestion,
-} from "@phosphor-icons/vue";
 import { useDebounceFn } from "@vueuse/core";
 
 definePageMeta({ middleware: "admin" });
@@ -123,6 +117,7 @@ watch(
             <EditorHeader :is-saving="isSaving" :last-saved="lastSaved" />
 
             <div
+                id="chart-canvas"
                 class="flex-1 px-12 pb-12 flex items-center justify-center min-h-0"
             >
                 <div
