@@ -26,7 +26,7 @@ const toggleMobile = () => (showMobileMenu.value = !showMobileMenu.value);
                             alt="Finger Pointing Icon"
                             class="size-6 shrink-0"
                         />
-                        We're in public beta.
+                        We're in private beta.
                         <img
                             :src="FlameIcon"
                             alt="Confetti Gun Icon"
@@ -34,10 +34,10 @@ const toggleMobile = () => (showMobileMenu.value = !showMobileMenu.value);
                         />
 
                         <NuxtLink
-                            :to="{ name: 'auth-register' }"
+                            :to="{ name: 'auth-waitlist' }"
                             class="font-semibold"
                         >
-                            Try it for free!
+                            Request invite!
                         </NuxtLink>
                     </p>
                 </div>

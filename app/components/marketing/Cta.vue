@@ -2,27 +2,17 @@
 import { AlertIcon } from "~/assets/images/icons";
 import { PhSpotifyLogo, PhXLogo } from "@phosphor-icons/vue";
 
-const names = [
-    "Alice",
-    "Bob",
-    "Charlie",
-    "Diana",
-    "Ethan",
-    "Fiona",
-    "George",
-    "Hannah",
-    "Ian",
-    "Jasmine",
-    "Kevin",
-    "Luna",
-    "Mason",
-    "Nina",
-    "Oscar",
-    "Paula",
-    "Quinn",
-    "Riley",
-    "Sophia",
-    "Tyler",
+const words = [
+    "marketing reports",
+    "sales reports",
+    "campaign results",
+    "client dashboards",
+    "ad performance",
+    "content performance",
+    "newsletter stats",
+    "social growth charts",
+    "weekly summaries",
+    "project updates",
 ];
 
 const currentText = ref("");
@@ -33,7 +23,7 @@ const deletingSpeed = 75;
 const pauseTime = 1500;
 
 function typeWriter() {
-    const fullText = names[currentIndex.value];
+    const fullText = words[currentIndex.value];
 
     if (!isDeleting.value) {
         currentText.value = fullText.substring(0, currentText.value.length + 1);
@@ -48,7 +38,7 @@ function typeWriter() {
         isDeleting.value = true;
     } else if (isDeleting.value && currentText.value === "") {
         isDeleting.value = false;
-        currentIndex.value = (currentIndex.value + 1) % names.length;
+        currentIndex.value = (currentIndex.value + 1) % words.length;
         timeout = 500;
     }
 
@@ -65,15 +55,19 @@ onMounted(() => {
         class="relative flex flex-col gap-y-6 items-center justify-center text-center"
     >
         <div class="flex flex-col">
+            <!-- STATIC TITLE -->
             <h1
                 class="flex justify-center text-center text-xl md:text-2xl lg:text-3xl font-semibold"
             >
-                One link. Way more expressive.
+                Make your data look good, fast.
             </h1>
+
+            <!-- STATIC SUBTITLE -->
             <p
                 class="text-center text-base font-light text-stone-700 leading-6"
             >
-                Turn your bio link into a story experience.
+                Turn your data into clean, interactive visuals anyone can
+                explore.
             </p>
         </div>
 
@@ -81,12 +75,13 @@ onMounted(() => {
             class="flex flex-col gap-y-10 items-center justify-center py-10 md:py-0 bg-stone-50 border-2 border-black/5 rounded-3xl max-w-6xl w-full aspect-[2.2/1] mb-20 relative"
         >
             <Brand />
-            <!-- Username Animation -->
+
+            <!-- ANIMATION (ONLY THIS MOVES) -->
             <div class="flex items-center justify-center gap-1">
                 <h1
                     class="flex text-left text-stone-400 text-3xl md:text-4xl lg:text-5xl font-normal"
                 >
-                    liqo.app/
+                    Build better
                 </h1>
                 <p
                     class="flex text-left text-black text-3xl md:text-4xl lg:text-5xl font-normal border-r-2 border-black pr-1 select-none w-fit"
@@ -94,12 +89,12 @@ onMounted(() => {
                     {{ currentText }}
                 </p>
             </div>
-            <!-- End Username Animation -->
+            <!-- END ANIMATION -->
 
-            <!-- CTA Button -->
+            <!-- CTA -->
             <div class="flex flex-col items-center justify-center gap-y-2">
-                <Button to="/waitlist" class="w-fit rounded-4xl" size="xl">
-                    Create your Liqo for free
+                <Button to="/create" class="w-fit rounded-4xl" size="xl">
+                    Create your first chart in seconds
                     <AnimatedArrow />
                 </Button>
                 <span
@@ -113,7 +108,7 @@ onMounted(() => {
                     No credit card required!
                 </span>
             </div>
-            <!-- End CTA Button -->
+            <!-- END CTA -->
         </div>
     </section>
 </template>

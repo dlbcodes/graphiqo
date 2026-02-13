@@ -153,7 +153,7 @@ onUnmounted(() => {
             @downplay="handleDownplay"
         />
 
-        <div class="flex-1 relative min-h-[200px]">
+        <div class="flex-1 relative min-h-[200px] md:min-h-[300px]">
             <div ref="chartRef" class="absolute inset-0 w-full h-full"></div>
         </div>
 
