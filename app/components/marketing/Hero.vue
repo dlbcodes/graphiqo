@@ -13,7 +13,7 @@ const submit = () => {
     >
         <!-- Eyebrow -->
         <a
-            href="https://liqo.app/daniel"
+            href="https://graphiqo.app/p/8ccb2d52-3724-400d-a8d3-3c9de7ceed10"
             target="_blank"
             class="flex flex-col shrink-0 w-fit p-1 justify-center bg-stone-100 border border-stone-200 rounded-3xl shadow-xs overflow-hidden dark:bg-dark-900 dark:border-black dark:shadow-[inset_-1px_1px_2px_0px_rgba(71,71,71,0.56)]"
         >
@@ -22,7 +22,7 @@ const submit = () => {
             >
                 <img :src="EyeIcon" alt="Flame icon" class="size-8 shrink-0" />
                 <span class="text-sm font-sans font-semibold">
-                    See liqo in action
+                    See in action
                 </span>
                 <AnimatedArrow />
             </div>
