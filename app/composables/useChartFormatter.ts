@@ -1,15 +1,24 @@
 import { CHART_PALETTES } from "@/utils/chartConstants";
 
 export const useChartFormatter = () => {
+	// Helper to normalize data structure
+	const getRows = (raw: any) => Array.isArray(raw) ? raw : (raw?.rows || []);
+	const getCols = (raw: any) => !Array.isArray(raw) ? (raw?.columns || {}) : {};
+
 	// --- HELPER FOR LEGEND MATH ---
-	const getLegendValue = (seriesName: string, rawData: any[], config: any, mode: string) => {
-		const seriesKey = Object.keys(config).find(k => config[k] === seriesName)
-			|| Object.keys(rawData[0] || {}).find(k => k.replace("val", "Series ") === seriesName);
+	const getLegendValue = (seriesName: string, rawData: any, config: any, mode: string) => {
+		const rows = getRows(rawData);
+		const colMap = getCols(rawData);
+
+		// Find the key (val1, val2...) based on the custom name
+		const seriesKey = Object.keys(colMap).find(k => colMap[k] === seriesName)
+			|| Object.keys(config).find(k => config[k] === seriesName)
+			|| Object.keys(rows[0] || {}).find(k => k.replace("val", "Col ") === seriesName);
 
 		const fallback = { val: '—', diff: 0, diffPct: '', rawVal: 0 };
-		if (!seriesKey || !rawData.length) return fallback;
+		if (!seriesKey || !rows.length) return fallback;
 
-		const values = rawData.map(row => Number(row[seriesKey])).filter(v => !isNaN(v));
+		const values = rows.map(row => Number(row[seriesKey])).filter(v => !isNaN(v));
 		if (values.length === 0) return fallback;
 
 		let result = 0;
@@ -22,7 +31,6 @@ export const useChartFormatter = () => {
 				if (values.length > 1) {
 					const prev = values[values.length - 2];
 					diff = result - prev;
-					// Safe division
 					const pct = prev !== 0 ? ((result - prev) / Math.abs(prev)) * 100 : 0;
 					diffPct = `${pct > 0 ? '+' : ''}${pct.toFixed(1)}%`;
 				}
@@ -49,7 +57,10 @@ export const useChartFormatter = () => {
 
 		const config = chart.config || {};
 		const globalType = chart.type || "bar";
-		const raw = chart.rawData || [];
+
+		// --- DATA NORMALIZATION ---
+		const rows = getRows(chart.rawData);
+		const colMap = getCols(chart.rawData);
 
 		// 1. Theme Logic
 		const isDark = config.darkMode;
@@ -61,8 +72,8 @@ export const useChartFormatter = () => {
 		const finalTextColor = brand?.textColor || config.textColor || defaultText;
 		const finalFont = brand?.fontFamily || config.fontFamily || "Geist";
 
-		// 2. Data Cleaning
-		const filtered = raw.filter((r: any) => r.label && String(r.label).trim() !== "");
+		// 2. Data Cleaning - use 'rows' instead of 'raw'
+		const filtered = rows.filter((r: any) => r.label && String(r.label).trim() !== "");
 		if (filtered.length === 0) return {};
 
 		const labels = filtered.map((r: any) => r.label);
@@ -76,15 +87,12 @@ export const useChartFormatter = () => {
 				color: finalTextColor,
 				fontFamily: finalFont
 			},
-			legend: {
-				show: false,
-
-			},
+			legend: { show: false },
 			tooltip: {
 				backgroundColor: isDark ? "#1f2937" : "#ffffff",
 				borderColor: isDark ? "#374151" : "#e5e7eb",
 				textStyle: { color: finalTextColor },
-				trigger: (globalType === 'pie' || globalType === 'donut' || globalType === 'funnel') ? 'item' : 'axis'
+				trigger: (['pie', 'donut', 'funnel'].includes(globalType)) ? 'item' : 'axis'
 			}
 		};
 
@@ -101,7 +109,7 @@ export const useChartFormatter = () => {
 					type: 'radar',
 					data: seriesKeys.map((key) => ({
 						value: filtered.map(r => Number(r[key]) || 0),
-						name: config[`${key}Name`] || key.replace("val", "Series ")
+						name: colMap[key] || config[`${key}Name`] || key.replace("val", "Series ")
 					}))
 				}]
 			};
@@ -117,7 +125,7 @@ export const useChartFormatter = () => {
 					inRange: { color: [finalPalette[0], finalPalette[1] || '#fff'] }
 				},
 				xAxis: { type: 'category', data: labels, axisLabel: { color: finalTextColor } },
-				yAxis: { type: 'category', data: seriesKeys.map(k => config[`${k}Name`] || k), axisLabel: { color: finalTextColor } },
+				yAxis: { type: 'category', data: seriesKeys.map(k => colMap[k] || config[`${k}Name`] || k), axisLabel: { color: finalTextColor } },
 				series: [{
 					type: 'heatmap',
 					data: filtered.flatMap((r, i) => seriesKeys.map((k, j) => [i, j, Number(r[k]) || 0])),
@@ -126,28 +134,17 @@ export const useChartFormatter = () => {
 			};
 		}
 
-		// --- TYPE: FUNNEL ---
-		if (globalType === "funnel") {
+		// --- TYPE: FUNNEL / PIE / DONUT ---
+		if (["funnel", "pie", "donut"].includes(globalType)) {
 			return {
 				...baseSettings,
 				series: [{
-					type: 'funnel',
-					left: '10%', width: '80%',
-					data: filtered.map(r => ({ value: Number(r.val1), name: r.label })),
-					label: { position: 'inside', color: '#fff' }
-				}]
-			};
-		}
-
-		// --- TYPE: PIE / DONUT ---
-		if (globalType === "pie" || globalType === "donut") {
-			return {
-				...baseSettings,
-				series: [{
-					type: 'pie',
-					radius: globalType === 'donut' ? ['40%', '70%'] : '70%',
+					type: globalType === 'funnel' ? 'funnel' : 'pie',
+					radius: globalType === 'donut' ? ['40%', '70%'] : (globalType === 'pie' ? '70%' : null),
+					left: globalType === 'funnel' ? '10%' : null,
+					width: globalType === 'funnel' ? '80%' : null,
 					itemStyle: { borderRadius: 10, borderColor: isDark ? '#111827' : '#fff', borderWidth: 2 },
-					label: { show: config.showLabels, color: finalTextColor },
+					label: { show: config.showLabels, color: finalTextColor, position: globalType === 'funnel' ? 'inside' : 'outside' },
 					data: filtered.map((r: any) => ({
 						value: Number(r.val1) || 0,
 						name: r.label
@@ -163,7 +160,7 @@ export const useChartFormatter = () => {
 			const isStep = specificType === "step";
 
 			return {
-				name: config[`${key}Name`] || key.replace("val", "Series "),
+				name: colMap[key] || config[`${key}Name`] || key.replace("val", "Col "),
 				type: (isArea || isStep) ? "line" : (specificType === "scatter" ? "scatter" : specificType),
 				data: filtered.map((r: any) => Number(r[key]) || 0),
 				smooth: config.smooth ?? false,
@@ -190,12 +187,9 @@ export const useChartFormatter = () => {
 		return {
 			...baseSettings,
 			grid: {
-				left: '1%',
-				right: '6%',
+				left: '1%', right: '6%',
 				bottom: config.legend?.position === 'bottom' ? '15%' : '10%',
-				top: '3%',
-				containLabel: true,
-				show: false
+				top: '3%', containLabel: true, show: false
 			},
 			xAxis: {
 				show: !config.hideX,
@@ -215,8 +209,5 @@ export const useChartFormatter = () => {
 		};
 	};
 
-	return {
-		formatOptions,
-		getLegendValue
-	};
+	return { formatOptions, getLegendValue };
 };

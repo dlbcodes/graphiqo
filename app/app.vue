@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Analytics } from "@vercel/analytics/nuxt";
+import "gridjs/dist/theme/mermaid.css";
 
 const isProd = process.env.NODE_ENV === "production";
 

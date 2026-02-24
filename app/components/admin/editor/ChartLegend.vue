@@ -13,22 +13,35 @@ const props = defineProps<{
 const emit = defineEmits(["toggle", "highlight", "downplay"]);
 
 const legendItems = computed(() => {
-    const raw = props.chartData?.rawData || [];
+    // --- 1. DATA NORMALIZATION (CRITICAL) ---
+    const rawData = props.chartData?.rawData;
+    if (!rawData) return [];
+
+    // Extract rows and columns safely
+    const rows = Array.isArray(rawData) ? rawData : rawData.rows || [];
+    const colMap = !Array.isArray(rawData) ? rawData.columns || {} : {};
+
+    if (rows.length === 0) return [];
+
     const conf = props.chartData?.config || {};
     const mode = conf.legend?.valueMode || "none";
     const palette = props.options?.color || [];
 
-    if (raw.length === 0) return [];
-
-    const seriesKeys = Object.keys(raw[0]).filter((k) => k.startsWith("val"));
+    // Identify which 'valX' keys we actually have in the first row
+    const seriesKeys = Object.keys(rows[0]).filter((k) => k.startsWith("val"));
 
     return seriesKeys.map((key, idx) => {
-        const name = conf[`${key}Name`] || key.replace("val", "Series ");
-        const stats = getLegendValue(name, raw, conf, mode);
+        // --- 2. NAME RESOLUTION ---
+        // Priority: 1. New colMap, 2. Old config overrides, 3. Fallback string
+        const name =
+            colMap[key] || conf[`${key}Name`] || key.replace("val", "Col ");
 
-        const firstLabel = raw[0]?.label || "";
-        const lastLabel = raw[raw.length - 1]?.label || "";
-        const prevLabel = raw[raw.length - 2]?.label || "prev";
+        // Pass the full rawData to getLegendValue (it now handles the object/array check)
+        const stats = getLegendValue(name, rawData, conf, mode);
+
+        const firstLabel = rows[0]?.label || "";
+        const lastLabel = rows[rows.length - 1]?.label || "";
+        const prevLabel = rows[rows.length - 2]?.label || "prev";
 
         let context = "";
         if (mode === "avg") context = "AVG";
@@ -50,7 +63,10 @@ const legendItems = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-wrap gap-x-4 gap-y-2 mb-8 shrink-0">
+    <div
+        v-if="legendItems.length"
+        class="flex flex-wrap gap-x-4 gap-y-2 mb-8 shrink-0"
+    >
         <div
             v-for="item in legendItems"
             :key="item.name"
@@ -69,8 +85,7 @@ const legendItems = computed(() => {
                         {{ item.value }}
                     </span>
                     <span
-                        class="text-[10px] font-medium opacity-40"
-                        :class="isDark ? 'text-stone-500' : 'text-stone-500'"
+                        class="text-[10px] font-medium opacity-40 text-stone-500"
                     >
                         {{ item.context }}
                     </span>

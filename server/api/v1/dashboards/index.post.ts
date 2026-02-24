@@ -10,9 +10,7 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, message: "Title is required" });
 	}
 
-	// Use a transaction to create both at once
 	const result = await prisma.$transaction(async (tx) => {
-		// 1. Create the Dashboard
 		const dashboard = await tx.dashboard.create({
 			data: {
 				title: body.title,
@@ -22,25 +20,31 @@ export default defineEventHandler(async (event) => {
 			},
 		});
 
-		// 2. Create the Initial Chart linked to that dashboard
 		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+		// NEW STRUCTURE: { columns: {}, rows: [] }
+		const initialRawData = {
+			columns: {
+				val1: "Revenue",
+				val2: "Expenses"
+			},
+			rows: months.map((month, index) => ({
+				label: month,
+				val1: Math.floor(Math.random() * 40) + 50 + index * 2,
+				val2: Math.floor(Math.random() * 30) + 40 + index * 3
+			}))
+		};
 
 		await tx.chart.create({
 			data: {
 				dashboardId: dashboard.id,
 				name: "Monthly Performance",
 				type: "bar",
-				rawData: months.map((month, index) => ({
-					label: month,
-					// Simulating some realistic random data growth
-					val1: Math.floor(Math.random() * 40) + 50 + index * 2,
-					val2: Math.floor(Math.random() * 30) + 40 + index * 3
-				})),
+				rawData: initialRawData, // Saving the object instead of the array
 				config: {
 					theme: "default",
 					showLegend: true,
 					smooth: true,
-					// Useful for 12 points of data
 					showGrid: true
 				}
 			}

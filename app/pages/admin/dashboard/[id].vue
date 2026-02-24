@@ -8,21 +8,40 @@ const store = useDashboardStore();
 const brandStore = useBrandStore();
 const { formatOptions } = useChartFormatter();
 
-// Local UI State
-const activeTab = ref<"data" | "type" | "settings" | "brand" | null>(null);
+// 1. UI STATE - Ensure this matches the internal expectation of DockMenu
+const activeTab = ref<string | null>(null);
+const isLoaded = ref(false);
 
 onMounted(async () => {
-    await Promise.all([
-        store.fetchDashboard(route.params.id as string),
-        store.fetchDashboards(),
-        brandStore.fetchBrands(),
-    ]);
+    try {
+        await Promise.all([
+            store.fetchDashboard(route.params.id as string),
+            store.fetchDashboards(),
+            brandStore.fetchBrands(),
+        ]);
+    } finally {
+        isLoaded.value = true;
+    }
 });
 
 const activeChart = computed(() => {
     const charts = store.currentDashboard?.charts;
     if (!charts || charts.length === 0) return null;
-    return charts.find((c) => c.id === store.activeChartId) || charts[0];
+    const chart = charts.find((c) => c.id === store.activeChartId) || charts[0];
+
+    // Normalize data structure on the fly
+    if (chart && (!chart.rawData || Array.isArray(chart.rawData))) {
+        chart.rawData = {
+            columns: chart.rawData?.columns || {
+                val1: "Series 1",
+                val2: "Series 2",
+            },
+            rows: Array.isArray(chart.rawData)
+                ? chart.rawData
+                : chart.rawData?.rows || [],
+        };
+    }
+    return chart;
 });
 
 const linkedBrand = computed(() => {
@@ -30,9 +49,10 @@ const linkedBrand = computed(() => {
     return brandId ? brandStore.brands.find((b) => b.id === brandId) : null;
 });
 
-const chartOptions = computed(() =>
-    formatOptions(activeChart.value, linkedBrand.value),
-);
+const chartOptions = computed(() => {
+    if (!activeChart.value) return {};
+    return formatOptions(activeChart.value, linkedBrand.value);
+});
 
 const updateChart = (payload: any) => {
     if (activeChart.value) {
@@ -40,39 +60,33 @@ const updateChart = (payload: any) => {
     }
 };
 
-// 1. Keep track of the last version we saved to the DB
+// Auto-save logic
 const lastSavedState = ref("");
 const isSaving = ref(false);
 const lastSaved = ref<Date | null>(null);
 
-// 2. The actual API call logic (Debounced)
 const debouncedSave = useDebounceFn(async (id: string, data: any) => {
     const currentStateString = JSON.stringify(data);
     if (currentStateString === lastSavedState.value) return;
 
-    isSaving.value = true; // Start indicator
+    isSaving.value = true;
     try {
         await store.updateChartData(id, data);
         lastSavedState.value = currentStateString;
-        lastSaved.value = new Date(); // Update timestamp
+        lastSaved.value = new Date();
     } finally {
-        // Smooth transition back to "Saved"
         setTimeout(() => {
             isSaving.value = false;
         }, 800);
     }
 }, 2000);
 
-// 3. Watch the active chart
 watch(
-    () => [activeChart.value?.rawData, activeChart.value?.config],
-    (newValues) => {
-        if (!activeChart.value?.id) return;
-
-        const [rawData, config] = newValues;
-
-        // Trigger the debounced function
-        debouncedSave(activeChart.value.id, { rawData, config });
+    () => activeChart.value?.rawData, // Make sure this is observing the whole object
+    (newVal) => {
+        if (newVal) {
+            debouncedSave(activeChart.value.id, { rawData: newVal });
+        }
     },
     { deep: true },
 );
@@ -84,10 +98,18 @@ watch(
     >
         <FloatingHelp />
 
-        <DockMenu v-model="activeTab">
+        <DockMenu v-if="isLoaded" v-model="activeTab">
             <template #data>
-                <div v-if="activeChart" class="h-full w-full grid">
-                    <DataSheet v-model="activeChart.rawData" />
+                <div v-if="activeChart?.rawData" class="h-full w-full grid">
+                    <DataSheet
+                        v-model="activeChart.rawData"
+                        :chart-data="activeChart"
+                    />
+
+                    <!-- <GridSheet
+                        v-model="activeChart.rawData"
+                        :chart-data="activeChart"
+                    /> -->
                 </div>
             </template>
             <template #type>
@@ -129,14 +151,14 @@ watch(
                     "
                 >
                     <div
-                        v-if="!activeChart"
+                        v-if="!isLoaded || !activeChart"
                         class="flex-1 flex flex-col items-center justify-center gap-y-2"
                     >
                         <Spinner />
                         <div
                             class="animate-pulse text-stone-300 font-medium text-sm"
                         >
-                            Loading chart...
+                            Loading workspace...
                         </div>
                     </div>
 
@@ -144,6 +166,7 @@ watch(
                         v-else
                         :options="chartOptions"
                         :chart-data="activeChart"
+                        :is-dark="activeChart?.config?.darkMode ?? false"
                         @updateMetadata="updateChart"
                     />
                 </div>
@@ -153,14 +176,8 @@ watch(
 </template>
 
 <style scoped>
+/* Added explicit transition for the main content shift */
 main {
-    transition: padding-left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-:deep(.ve-container) {
-    border: none !important;
-    background: transparent !important;
-}
-input:focus {
-    box-shadow: none !important;
+    transition: padding-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>

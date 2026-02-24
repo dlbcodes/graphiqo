@@ -76,6 +76,14 @@ watch(
                     chartInstance.value?.setOption(newOptions, {
                         notMerge: true,
                     });
+
+                    // CRITICAL: Re-apply the hidden state after the redraw
+                    hiddenSeries.value.forEach((name) => {
+                        chartInstance.value?.dispatchAction({
+                            type: "legendUnSelect", // Makes sure it stays hidden
+                            name: name,
+                        });
+                    });
                 } catch (e) {
                     console.warn("ECharts sync delayed:", e);
                 }
@@ -146,7 +154,7 @@ onUnmounted(() => {
             v-if="config.legend?.show !== false"
             :chart-data="chartData"
             :options="options"
-            :is-dark="isDark"
+            :is-dark="false"
             :hidden-series="hiddenSeries"
             @toggle="handleToggle"
             @highlight="handleHighlight"
